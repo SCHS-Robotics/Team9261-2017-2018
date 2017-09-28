@@ -15,7 +15,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackable;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackableDefaultListener;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackables;
 
-@Autonomous
+@com.qualcomm.robotcore.eventloop.opmode.TeleOp(name = "Vuforia", group = "Iterative Opmode")
 public class Vuforia extends LinearOpMode
 {
 	VuforiaLocalizer vuforiaLocalizer;
@@ -65,6 +65,7 @@ public class Vuforia extends LinearOpMode
 	
 	public void setupVuforia()
 	{
+
 		parameters = new VuforiaLocalizer.Parameters(R.id.cameraMonitorViewId); //remove parameters to hide phone tracking
 		parameters.vuforiaLicenseKey = VUFORIA_KEY;
 		parameters.cameraDirection = VuforiaLocalizer.CameraDirection.BACK;
