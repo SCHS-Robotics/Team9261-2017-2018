@@ -10,6 +10,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
+import org.firstinspires.ftc.robotcore.external.navigation.RelicRecoveryVuMark;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackable;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackableDefaultListener;
@@ -21,13 +22,14 @@ public class Vuforia extends LinearOpMode
 	VuforiaLocalizer vuforiaLocalizer;
 	VuforiaLocalizer.Parameters parameters;
 	VuforiaTrackables visionTargets;
-	VuforiaTrackable target;
+	VuforiaTrackable relicVuMark;
 	VuforiaTrackableDefaultListener listener;
-	
+
+    RelicRecoveryVuMark vuMark = RelicRecoveryVuMark.from(relicVuMark);
 	OpenGLMatrix lastKnownLocation;
 	OpenGLMatrix phoneLocation;
 	
-	private static final String VUFORIA_KEY = "ATS8Dcj/////AAAAGTkYUwXOrkd2kyny9GiVK9lxKj1DuiUU544PM0IOEd2wkCr8PfXRGOPVlh09zz4J6OboqkzaXGr2p61WiZoy80Dz/LJdXVtWjmYrc7+YgN8FkyhEdsc1IDWIC9nyGJsw8IhRaN0JrcNniWlqhAGNxdn2EbDHA4rOJDqEgac7/cvKw6AfKzddlZeOnVzYwxjgF0KAUBRs+/A32tRh8UjOplceeGxEAnZmYU9dx7SZUA8BZ0Xlib1Hcub2aecKgohdjlY+0bekA22p8OsA0ToX5bdHi9tllTe0i6zIQNYYXhZaoK2t4iSpQblWYF9WVp8YwRSxXgfpcYr/BRg/yo5yVS0xPhzyp+alPYrKl/hUVmEr";
+	private static final String VUFORIA_KEY = "AahcXtr/////AAAAGeTM6MJozUDjmFmQyvzpw18JQGmMgCEJS4/mut4gWK23MK4IlXByqZJODNPcUsLluTIPxylZ00ZT+dnztgAgULPHoPca6zxDfRrdHxZaK0rRhdkAubtyi0J3if7ZFxYlC32J2wpWYb0N7QvMO1KfsG5s7fU24IaeXZhK8MeoD6CmnJfaVsa4brdMv2lqy1BUeGikI9FJphmw/JtS9r0FNM0Hk5ditj1qSkiFSYzpdS28Owzlwqudf5ZovyF8GtZ1xcfCpP4GWA1I0SOLxrFsXV74LkjoQi0AGVmnL3EXScKPeGmZPJtbd8oG2AzUUzYWnCwTi1X0+hEccMqG4WB8FsWMzYiYNrmS4+HfGJMExtno";
 	
 	private float robotX = 0;
 	private float robotY = 0;
@@ -54,8 +56,11 @@ public class Vuforia extends LinearOpMode
 			robotX = coordinates[0];
 			robotY = coordinates[1];
 			robotAngle = Orientation.getOrientation(lastKnownLocation, AxesReference.EXTRINSIC, AxesOrder.XYZ, AngleUnit.DEGREES).thirdAngle;
-			
-			telemetry.addData("Tracking" + target.getName(), listener.isVisible());
+            if (vuMark != RelicRecoveryVuMark.UNKNOWN) {
+                telemetry.addData("VuMark", "%s visible", vuMark);
+            }else{
+                telemetry.addData("VuMark", "not visible");
+            }
 			telemetry.addData("Last Known Loacation", formatMatrix(lastKnownLocation));
 			
 			telemetry.update();
@@ -73,14 +78,14 @@ public class Vuforia extends LinearOpMode
 		vuforiaLocalizer = ClassFactory.createVuforiaLocalizer(parameters);
 		
 		visionTargets = vuforiaLocalizer.loadTrackablesFromAsset("RelicVuMark");
-		
-		target = visionTargets.get(0);
-		target.setName("RelicRecovery");
-		target.setLocation(createMatrix(0,0,0,0,0,0));
+
+		relicVuMark = visionTargets.get(0);
+		relicVuMark.setName("RelicRecovery");
+		relicVuMark.setLocation(createMatrix(0,0,0,0,0,0));
 		
 		phoneLocation = createMatrix(0,0,0,0,0,0);
 		
-		listener = (VuforiaTrackableDefaultListener) target.getListener();
+		listener = (VuforiaTrackableDefaultListener) relicVuMark.getListener();
 		listener.setPhoneInformation(phoneLocation, parameters.cameraDirection);
 		
 	}
