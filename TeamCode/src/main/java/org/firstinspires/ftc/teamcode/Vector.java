@@ -3,8 +3,39 @@ package org.firstinspires.ftc.teamcode;
 /**
  * Created by Cole Savage on 7/11/2017.
  */
+
 public class Vector {
-    public double x,y,theta;
+    public enum CoordinateType {
+        CARTESIAN, POLAR
+    }
+    public CoordinateType coordinateType;
+    public double x,y,r,theta;
+    public Vector(double inx, double iny, CoordinateType inCoord) {
+        if (inCoord == CoordinateType.CARTESIAN) {
+            this.x = inx;
+            this.y = iny;
+            this.r = Math.sqrt(Math.pow(inx,2)+Math.pow(iny,2));
+            if (inx > 0) {
+                this.theta = Math.atan(iny / inx);
+            } else if (inx < 0) {
+                this.theta = Math.atan(iny / inx) + Math.PI;
+            } else if (inx == 0 && iny > 0) {
+                this.theta = Math.PI / 2;
+            } else if (inx == 0 && iny < 0) {
+                this.theta = -Math.PI / 2;
+            } else {
+                this.theta = 0;
+            }
+            this.theta = this.theta > 0 ? this.theta : this.theta + 2 * Math.PI; //To make everything positive, because I don't like negative angles as much
+        }
+        else if(inCoord == CoordinateType.POLAR) {
+            this.r = inx;
+            this.theta = iny;
+            this.x = inx*Math.cos(iny);
+            this.y = inx*Math.sin(iny);
+            this.theta = this.theta > 0 ? this.theta : this.theta + 2 * Math.PI; //To make everything positive, because I don't like negative angles as much
+        }
+    }
     public Vector(double inx, double iny) {
         this.x = inx;
         this.y = iny;
@@ -14,10 +45,10 @@ public class Vector {
         else if(inx < 0) {
             this.theta = Math.atan(iny/inx) + Math.PI;
         }
-        else if(iny > 0) {
+        else if(inx == 0 && iny > 0) {
             this.theta = Math.PI/2;
         }
-        else if(iny < 0) {
+        else if(inx == 0 && iny < 0) {
             this.theta = -Math.PI/2;
         }
         else {
