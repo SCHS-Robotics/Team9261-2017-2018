@@ -25,7 +25,8 @@ public class Vuforia extends LinearOpMode
 	VuforiaTrackable relicVuMark;
 	VuforiaTrackableDefaultListener listener;
 
-    RelicRecoveryVuMark vuMark = RelicRecoveryVuMark.from(relicVuMark);
+	RelicRecoveryVuMark vuMark;
+
 	OpenGLMatrix lastKnownLocation;
 	OpenGLMatrix phoneLocation;
 	
@@ -47,6 +48,7 @@ public class Vuforia extends LinearOpMode
 		while(opModeIsActive())
 		{
 			OpenGLMatrix latestLocation = listener.getUpdatedRobotLocation();
+			vuMark = RelicRecoveryVuMark.from(relicVuMark);
 		
 			if(latestLocation !=null)
 			{lastKnownLocation = latestLocation;}
@@ -56,15 +58,16 @@ public class Vuforia extends LinearOpMode
 			robotX = coordinates[0];
 			robotY = coordinates[1];
 			robotAngle = Orientation.getOrientation(lastKnownLocation, AxesReference.EXTRINSIC, AxesOrder.XYZ, AngleUnit.DEGREES).thirdAngle;
-            if (vuMark != RelicRecoveryVuMark.UNKNOWN) {
-                telemetry.addData("VuMark", "%s visible", vuMark);
+            RelicRecoveryVuMark key = vuMark;
+			if (vuMark != RelicRecoveryVuMark.UNKNOWN) {
+                telemetry.addData("Navi", "%s visible", vuMark);
             }else{
-                telemetry.addData("VuMark", "not visible");
+                telemetry.addData("Navi", "not visible");
+                telemetry.addData("Navi Sees:", vuMark);
             }
-			telemetry.addData("Last Known Loacation", formatMatrix(lastKnownLocation));
-			
+			telemetry.addData("Last Known Location", formatMatrix(lastKnownLocation));
+			telemetry.addData("key",key.toString());
 			telemetry.update();
-			idle();
 		}
 	}
 	
@@ -80,7 +83,7 @@ public class Vuforia extends LinearOpMode
 		visionTargets = vuforiaLocalizer.loadTrackablesFromAsset("RelicVuMark");
 
 		relicVuMark = visionTargets.get(0);
-		relicVuMark.setName("RelicRecovery");
+		relicVuMark.setName("RelicVuMark");
 		relicVuMark.setLocation(createMatrix(0,0,0,0,0,0));
 		
 		phoneLocation = createMatrix(0,0,0,0,0,0);

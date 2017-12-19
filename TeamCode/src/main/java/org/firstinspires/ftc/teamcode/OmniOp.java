@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import com.qualcomm.robotcore.hardware.CRServo;
+import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -31,12 +32,14 @@ public class OmniOp extends OpMode {
 
     private DcMotor motor5;
     private DcMotor motor6;
+    private DcMotor motor7;
 
+    //remember to have servos inside
     private CRServo leftcr;
     private CRServo rightcr;
+    private Servo jewelCR;
 
-    boolean bumperprev;
-    boolean triggerprev;
+
 
     @Override
     public void init() {
@@ -48,9 +51,14 @@ public class OmniOp extends OpMode {
 
         motor5 = hardwareMap.dcMotor.get("motor5");
         motor6 = hardwareMap.dcMotor.get("motor6");
+        motor7 = hardwareMap.dcMotor.get("motor7");
 
-        leftcr = hardwareMap.crservo.get("leftcr");
+        leftcr = hardwareMap.crservo.get("leftcr");     //leftcr and rightcr are flipped
         rightcr = hardwareMap.crservo.get("rightcr");
+        //jewelCR = hardwareMap.servo.get("jewelcr");
+
+        leftcr.setDirection(CRServo.Direction.REVERSE);
+        rightcr.setDirection(CRServo.Direction.FORWARD);
 
         motora.setDirection(DcMotor.Direction.FORWARD);
         motorb.setDirection(DcMotor.Direction.REVERSE);
@@ -59,9 +67,9 @@ public class OmniOp extends OpMode {
 
         motor5.setDirection(DcMotor.Direction.FORWARD);
         motor6.setDirection(DcMotor.Direction.REVERSE);
+        motor7.setDirection(DcMotor.Direction.FORWARD);
 
-        leftcr.setDirection(CRServo.Direction.REVERSE);
-        rightcr.setDirection(CRServo.Direction.FORWARD);
+
     }
     @Override
     public void init_loop() {
@@ -70,7 +78,7 @@ public class OmniOp extends OpMode {
 
     @Override
     public void start() {
-
+        //jewelCR.setPosition(0);
     }
 
     @Override
@@ -78,22 +86,38 @@ public class OmniOp extends OpMode {
         Vector inputVector = new Vector(gamepad1.left_stick_x, -gamepad1.left_stick_y); //gamepads are weird, -1 is at the top of the y axis
         Vector motionVector = inputVector.rotate(-Math.PI / 4);
 
-        if (gamepad2.right_trigger > 0 && !triggerprev) {
-            leftcr.setPower(1);
-            rightcr.setPower(1);
+        if (gamepad2.right_trigger > 0 ) {
+            leftcr.setPower(gamepad2.right_trigger);
+            rightcr.setPower(gamepad2.right_trigger);
+        }else if (gamepad2.left_trigger > 0 ) {
+            leftcr.setPower(-gamepad2.left_trigger);
+            rightcr.setPower(-gamepad2.left_trigger);
+        }else{
+            leftcr.setPower(0.4);
+            rightcr.setPower(0.4);
         }
 
-        if (gamepad2.left_trigger > 0) {
-            leftcr.setPower(0);
-            rightcr.setPower(0);
+        if (gamepad2.left_bumper && gamepad2.x) {
+            motor5.setPower(1);
+            motor6.setPower(1);
         }
-        if (gamepad2.right_bumper && !bumperprev) {
-            motor5.setPower(0.5);
-            motor6.setPower(0.5);
+        else if (gamepad2.left_bumper) {
+            motor5.setPower(0.7);
+            motor6.setPower(0.65);
         }
-        if (gamepad2.left_bumper) {
+        else if (gamepad2.right_bumper) {
+            motor5.setPower(-0.7);
+            motor6.setPower(-0.7);
+        }
+        else{
             motor5.setPower(0);
             motor6.setPower(0);
+        }
+
+        if(gamepad2.a){
+            motor7.setPower(1);
+        }else{
+            motor7.setPower(0);
         }
 
         if (gamepad1.left_bumper && motionVector.isZeroVector()) {
@@ -108,14 +132,14 @@ public class OmniOp extends OpMode {
             motorc.setPower(-1);
             motord.setPower(1);
         } else {
-            double offset = (gamepad1.left_trigger - gamepad1.right_trigger) / 4;
+            double offset = (gamepad1.left_trigger - gamepad1.right_trigger) / 2;
             motora.setPower(Range.clip(motionVector.x - offset, -1, 1));
             motorb.setPower(Range.clip(motionVector.y + offset, -1, 1));
             motorc.setPower(Range.clip(motionVector.x + offset, -1, 1));
             motord.setPower(Range.clip(motionVector.y - offset, -1, 1));
         }
-        bumperprev = gamepad2.right_bumper;
-        triggerprev = gamepad2.right_trigger > 0;
     }
+
+
 }
 
