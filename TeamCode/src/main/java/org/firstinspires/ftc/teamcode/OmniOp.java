@@ -89,7 +89,7 @@ public class OmniOp extends OpMode {
         if (gamepad2.right_trigger > 0 ) {
             leftcr.setPower(gamepad2.right_trigger);
             rightcr.setPower(gamepad2.right_trigger);
-        }else if (gamepad2.left_trigger > 0 ) {
+        }else{
             leftcr.setPower(-gamepad2.left_trigger);
             rightcr.setPower(-gamepad2.left_trigger);
         }
