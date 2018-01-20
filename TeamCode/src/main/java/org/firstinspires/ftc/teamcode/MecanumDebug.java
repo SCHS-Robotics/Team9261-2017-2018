@@ -43,7 +43,7 @@ import static android.os.SystemClock.sleep;
 /**
  * Created by Sage Creek Level Up on 10/22/2017.
  */
-@com.qualcomm.robotcore.eventloop.opmode.TeleOp(name = "Mecanum Debug", group = "OpMode")
+@TeleOp(name = "Mecanum Debug", group = "OpMode")
 public class MecanumDebug extends OpMode{
     private DcMotor motor1; //motors 1 & 3 are left motors
     private DcMotor motor2; //motors 2 & 4 are right motors

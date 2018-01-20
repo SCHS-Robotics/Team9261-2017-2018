@@ -2,6 +2,8 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 import org.firstinspires.ftc.robotcontroller.internal.FtcRobotControllerActivity;
 import org.opencv.android.CameraBridgeViewBase;
@@ -19,6 +21,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+
+import static java.lang.Thread.sleep;
 
 /**
  * Created by Sage Creek Level Up on 11/21/2017.
@@ -62,15 +66,43 @@ public class NewCryptobox extends LinearOpMode implements CameraBridgeViewBase.C
 
     Mat kernel = Mat.ones(5, 5, CvType.CV_32F);
 
+    private double center = 640;
+    private double targetcenter = 640;
+
+    String key = "left";
+
+    private DcMotor motor1;
+    private DcMotor motor2;
+    private DcMotor motor3;
+    private DcMotor motor4;
+
     @Override
     public void runOpMode() {
+
+        motor1 = hardwareMap.dcMotor.get("motor1");
+        motor2 = hardwareMap.dcMotor.get("motor2");
+        motor3 = hardwareMap.dcMotor.get("motor3");
+        motor4 = hardwareMap.dcMotor.get("motor4");
+
+        motor1.setDirection(DcMotor.Direction.REVERSE);
+        motor2.setDirection(DcMotor.Direction.FORWARD);
+        motor3.setDirection(DcMotor.Direction.REVERSE);
+        motor4.setDirection(DcMotor.Direction.FORWARD);
 
         waitForStart();
 
         startOpenCV(this);
 
         while (opModeIsActive()) {
-
+            if(targetcenter < center) {
+                strafe(0.7);
+            }
+            else if(targetcenter > center) {
+                strafe(-0.7);
+            }
+            else {
+                stopDrive();
+            }
         }
 
         stopOpenCV();
@@ -181,14 +213,40 @@ public class NewCryptobox extends LinearOpMode implements CameraBridgeViewBase.C
                 Imgproc.circle(workingMat, center, 5, new Scalar(0, 255, 255), 3);
                 Imgproc.putText(workingMat, "Right", new Point(right.x - 10, right.y - 20), 0, 0.8, new Scalar(0, 255, 255), 2);
                 Imgproc.circle(workingMat, right, 5, new Scalar(0, 255, 255), 3);
+
+                if(key == "left") {
+                    targetcenter = left.x;
+                    telemetry.addLine("I ran");
+                }
+                else if(key == "right") {
+                    targetcenter = right.x;
+                }
+                else {
+                    targetcenter = center.x;
+                }
             } else {
+                ArrayList<Double> pts = new ArrayList<>();
                 for (int i = 0; i < boxes.size() - 1; i++) {
                     Point column = drawSlot(i, boxes);
+                    pts.add(column.x);
                     Imgproc.circle(workingMat, column, 5, new Scalar(0, 255, 255), 3);
                     if (i < 3) {
                         CryptoBoxPositions[i] = (int) column.x;
                     }
                 }
+                //targetcenter = Collections.min(pts);
+                /*
+                if (key == "left") {
+                    targetcenter = Collections.min(pts);
+                }
+                else if(key == "right") {
+                    targetcenter = Collections.max(pts);
+                }
+                else {
+                    Collections.sort(pts);
+
+                }
+                */
                 ColumnDetected = boxes.size() > 1;
             }
             if (rotateMat) {
@@ -240,7 +298,7 @@ public class NewCryptobox extends LinearOpMode implements CameraBridgeViewBase.C
     public Point drawSlot(int slot, List<Rect> boxes){
         Rect leftColumn = boxes.get(slot); //Get the pillar to the left
         Rect rightColumn = boxes.get(slot + 1); //Get the pillar to the right
-        int leftX = leftColumn.x; //Get the X Coord
+        int leftX = leftColumn.x + leftColumn.width; //Get the X Coord
         int rightX = rightColumn.x; //Get the X Coord
         int drawX = ((rightX - leftX) / 2) + leftX; //Calculate the point between the two
         int drawY = leftColumn.height + leftColumn.y; //Calculate Y Coord. We wont use this in our bot's opetation, buts its nice for drawing
@@ -274,5 +332,18 @@ public class NewCryptobox extends LinearOpMode implements CameraBridgeViewBase.C
     }
     public boolean isColumnDetected() {
         return ColumnDetected;
+    }
+
+    private void strafe(double power) {
+        motor1.setPower(power);
+        motor2.setPower(-power);
+        motor3.setPower(-power);
+        motor4.setPower(power);
+    }
+    private void stopDrive(){
+        motor1.setPower(0);
+        motor2.setPower(0);
+        motor3.setPower(0);
+        motor4.setPower(0);
     }
 }

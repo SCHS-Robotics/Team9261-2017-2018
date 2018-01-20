@@ -1,5 +1,10 @@
 package org.firstinspires.ftc.teamcode.season.relicrecov18.polaris.v1.robot;
 
+import android.graphics.Bitmap;
+
+import com.vuforia.Image;
+import com.vuforia.PIXEL_FORMAT;
+
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.matrices.OpenGLMatrix;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -14,6 +19,8 @@ import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackables;
 import org.firstinspires.ftc.teamcode.R;
 import org.firstinspires.ftc.teamcode.robot.Robot;
 import org.firstinspires.ftc.teamcode.robot.SubSystem;
+import org.opencv.android.Utils;
+import org.opencv.core.Mat;
 
 /**
  * Created by Sage Creek Level Up on 12/8/2017.
@@ -26,36 +33,21 @@ public class Navi extends SubSystem {
         super(robot);
     }
 
-    VuforiaLocalizer vuforiaLocalizer;
-    VuforiaLocalizer.Parameters parameters;
-    VuforiaTrackables visionTargets;
-    VuforiaTrackable relicVuMark;
-    VuforiaTrackableDefaultListener listener;
+    public VuforiaLocalizer vuforiaLocalizer;
+    public VuforiaLocalizer.Parameters parameters;
+    public VuforiaTrackables visionTargets;
+    public VuforiaTrackable relicVuMark;
+    public VuforiaTrackableDefaultListener listener;
 
-    RelicRecoveryVuMark vuMark;
+    public RelicRecoveryVuMark vuMark;
     public RelicRecoveryVuMark key;
 
-    OpenGLMatrix lastKnownLocation;
-    OpenGLMatrix phoneLocation;
+    public boolean vuforiaSetup = false;
 
-    private static final String VUFORIA_KEY = "AahcXtr/////AAAAGeTM6MJozUDjmFmQyvzpw18JQGmMgCEJS4/mut4gWK23MK4IlXByqZJODNPcUsLluTIPxylZ00ZT+dnztgAgULPHoPca6zxDfRrdHxZaK0rRhdkAubtyi0J3if7ZFxYlC32J2wpWYb0N7QvMO1KfsG5s7fU24IaeXZhK8MeoD6CmnJfaVsa4brdMv2lqy1BUeGikI9FJphmw/JtS9r0FNM0Hk5ditj1qSkiFSYzpdS28Owzlwqudf5ZovyF8GtZ1xcfCpP4GWA1I0SOLxrFsXV74LkjoQi0AGVmnL3EXScKPeGmZPJtbd8oG2AzUUzYWnCwTi1X0+hEccMqG4WB8FsWMzYiYNrmS4+HfGJMExtno";
+    public static final String VUFORIA_KEY = "AahcXtr/////AAAAGeTM6MJozUDjmFmQyvzpw18JQGmMgCEJS4/mut4gWK23MK4IlXByqZJODNPcUsLluTIPxylZ00ZT+dnztgAgULPHoPca6zxDfRrdHxZaK0rRhdkAubtyi0J3if7ZFxYlC32J2wpWYb0N7QvMO1KfsG5s7fU24IaeXZhK8MeoD6CmnJfaVsa4brdMv2lqy1BUeGikI9FJphmw/JtS9r0FNM0Hk5ditj1qSkiFSYzpdS28Owzlwqudf5ZovyF8GtZ1xcfCpP4GWA1I0SOLxrFsXV74LkjoQi0AGVmnL3EXScKPeGmZPJtbd8oG2AzUUzYWnCwTi1X0+hEccMqG4WB8FsWMzYiYNrmS4+HfGJMExtno";
 
-    /*
-    private float robotX = 0;
-    private float robotY = 0;
-    private float robotAngle = 0;
-    */
     @Override
     public void init(){
-        key = RelicRecoveryVuMark.UNKNOWN;
-        setupVuforia();
-        startVuforia();
-        for(int i=0;i<10;i++){
-            updateVuforia();
-        }
-        if(key!=RelicRecoveryVuMark.UNKNOWN){
-            stopVuforia();
-        }
     }
     @Override
     public void handle(){
@@ -65,52 +57,79 @@ public class Navi extends SubSystem {
     public void stop(){
 
     }
-    public void setupVuforia()
-    {
-        parameters = new VuforiaLocalizer.Parameters(); //remove parameters to hide phone tracking
+    public void setupVuforia() {
+        parameters = new VuforiaLocalizer.Parameters(); //remove parameters(R.id.cameraMonitorViewId) to hide phone tracking
         parameters.vuforiaLicenseKey = VUFORIA_KEY;
         parameters.cameraDirection = VuforiaLocalizer.CameraDirection.BACK;
-        parameters.useExtendedTracking = true; //extended tracking is quite inaccurate
+        parameters.useExtendedTracking = false; //extended tracking is quite inaccurate
         vuforiaLocalizer = ClassFactory.createVuforiaLocalizer(parameters);
 
         visionTargets = vuforiaLocalizer.loadTrackablesFromAsset("RelicVuMark");
 
         relicVuMark = visionTargets.get(0);
         relicVuMark.setName("RelicVuMark");
-        //relicVuMark.setLocation(createMatrix(0,0,0,0,0,0));
-
-        //phoneLocation = createMatrix(0,0,0,0,0,0);
 
         listener = (VuforiaTrackableDefaultListener) relicVuMark.getListener();
-        //listener.setPhoneInformation(phoneLocation, parameters.cameraDirection);
+        key = RelicRecoveryVuMark.UNKNOWN;
+        vuforiaSetup = true;
     }
 
-    public void updateVuforia(){
+    public void setKey(){
+        if(key == RelicRecoveryVuMark.UNKNOWN){
+            int random = (int) Math.ceil(Math.random()*3);
+            if(random == 1){
+                key = RelicRecoveryVuMark.LEFT;
+            }else if(random == 3){
+                key = RelicRecoveryVuMark.RIGHT;
+            }else{
+                key = RelicRecoveryVuMark.CENTER;
+            }
+        }
+    }
+
+    public Mat getFrame() {
+        Image vuforiaFrame;
+        try {
+            VuforiaLocalizer.CloseableFrame frame = vuforiaLocalizer.getFrameQueue().take();
+            long numImages = frame.getNumImages();
+            for (int i = 0; i < numImages; i++) {
+                if (frame.getImage(i).getFormat() == PIXEL_FORMAT.RGB565) {
+                    vuforiaFrame = frame.getImage(i);
+                    Bitmap bitmap = Bitmap.createBitmap(vuforiaFrame.getWidth(), vuforiaFrame.getHeight(), Bitmap.Config.RGB_565);
+                    bitmap.copyPixelsFromBuffer(vuforiaFrame.getPixels());
+                    Bitmap bmp32 = bitmap.copy(Bitmap.Config.ARGB_8888, true);
+                    Mat output = new Mat();
+                    Utils.bitmapToMat(bmp32, output);
+                    return output;
+                }
+            }
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+        return  null;
+    }
+
+    public void updateVuforia() {
         //OpenGLMatrix latestLocation = listener.getUpdatedRobotLocation();
         vuMark = RelicRecoveryVuMark.from(relicVuMark);
 
-        /*
-        if(latestLocation !=null)
-        {lastKnownLocation = latestLocation;}
-
-        float[] coordinates = lastKnownLocation.getTranslation().getData();
-
-        robotX = coordinates[0];
-        robotY = coordinates[1];
-        robotAngle = Orientation.getOrientation(lastKnownLocation, AxesReference.EXTRINSIC, AxesOrder.XYZ, AngleUnit.DEGREES).thirdAngle;
-        */
         if (vuMark != RelicRecoveryVuMark.UNKNOWN) {
             key = vuMark;
         }
-        robot.telemetry.addData("key", key);
-        robot.telemetry.update();
     }
 
-    public void startVuforia(){
-        visionTargets.activate();
+    public void startVuforia() {
+        if(visionTargets!=null && key==RelicRecoveryVuMark.UNKNOWN) {
+            visionTargets.activate();
+        }
     }
-    public void stopVuforia(){
-        visionTargets.deactivate();
+
+    public void stopVuforia() {
+        if(visionTargets!=null) {
+            visionTargets.deactivate();
+        }
+        vuforiaSetup = false;
     }
 
     public OpenGLMatrix createMatrix(float x, float y, float z, float u, float v, float w)

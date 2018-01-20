@@ -38,8 +38,7 @@ public class OmniOp extends OpMode {
     private CRServo leftcr;
     private CRServo rightcr;
     private Servo jewelCR;
-
-
+    private Servo axe;
 
     @Override
     public void init() {
@@ -55,20 +54,21 @@ public class OmniOp extends OpMode {
 
         leftcr = hardwareMap.crservo.get("leftcr");     //leftcr and rightcr are flipped
         rightcr = hardwareMap.crservo.get("rightcr");
-        //jewelCR = hardwareMap.servo.get("jewelcr");
+
+        jewelCR = hardwareMap.servo.get("jewelcr");
+        axe = hardwareMap.servo.get("axe");
 
         leftcr.setDirection(CRServo.Direction.REVERSE);
         rightcr.setDirection(CRServo.Direction.FORWARD);
 
-        motora.setDirection(DcMotor.Direction.FORWARD);
-        motorb.setDirection(DcMotor.Direction.REVERSE);
-        motorc.setDirection(DcMotor.Direction.REVERSE);
-        motord.setDirection(DcMotor.Direction.FORWARD);
+        motora.setDirection(DcMotor.Direction.REVERSE);
+        motorb.setDirection(DcMotor.Direction.FORWARD);
+        motorc.setDirection(DcMotor.Direction.FORWARD);
+        motord.setDirection(DcMotor.Direction.REVERSE);
 
         motor5.setDirection(DcMotor.Direction.FORWARD);
         motor6.setDirection(DcMotor.Direction.REVERSE);
         motor7.setDirection(DcMotor.Direction.FORWARD);
-
 
     }
     @Override
@@ -78,21 +78,15 @@ public class OmniOp extends OpMode {
 
     @Override
     public void start() {
-        //jewelCR.setPosition(0);
+        axe.setPosition(0.6);
+        jewelCR.setPosition(0.35);
     }
 
     @Override
     public void loop() {
+
         Vector inputVector = new Vector(gamepad1.left_stick_x, -gamepad1.left_stick_y); //gamepads are weird, -1 is at the top of the y axis
         Vector motionVector = inputVector.rotate(-Math.PI / 4);
-
-        if (gamepad2.right_trigger > 0 ) {
-            leftcr.setPower(gamepad2.right_trigger);
-            rightcr.setPower(gamepad2.right_trigger);
-        }else{
-            leftcr.setPower(-gamepad2.left_trigger);
-            rightcr.setPower(-gamepad2.left_trigger);
-        }
 
         if (gamepad2.left_bumper && gamepad2.x) {
             motor5.setPower(1);
@@ -128,15 +122,27 @@ public class OmniOp extends OpMode {
             motorb.setPower(-1);
             motorc.setPower(-1);
             motord.setPower(1);
-        } else {
+        }
+        else if(gamepad1.dpad_left) {
+            motora.setPower(-1);
+            motorb.setPower(1);
+            motorc.setPower(-1);
+            motord.setPower(1);
+        }
+        else if(gamepad1.dpad_right) {
+            motora.setPower(1);
+            motorb.setPower(-1);
+            motorc.setPower(1);
+            motord.setPower(-1);
+        }
+        else {
             double offset = (gamepad1.left_trigger - gamepad1.right_trigger) / 2;
             motora.setPower(Range.clip(motionVector.x - offset, -1, 1));
             motorb.setPower(Range.clip(motionVector.y + offset, -1, 1));
             motorc.setPower(Range.clip(motionVector.x + offset, -1, 1));
             motord.setPower(Range.clip(motionVector.y - offset, -1, 1));
         }
+        leftcr.setPower(Range.clip(gamepad2.right_trigger-gamepad2.left_trigger, -.87, .87));
+        rightcr.setPower(Range.clip(gamepad2.right_trigger-gamepad2.left_trigger, -.87, .87));
     }
-
-
 }
-
