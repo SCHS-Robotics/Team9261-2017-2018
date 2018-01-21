@@ -2,11 +2,11 @@ apply plugin: 'com.android.library'
 
 android {
     compileSdkVersion 23
-    buildToolsVersion '26.0.2'
+    buildToolsVersion "25.0.3"
 
     defaultConfig {
-        minSdkVersion 19
-        targetSdkVersion 19
+        minSdkVersion 22
+        targetSdkVersion 23
     }
 
     buildTypes {
@@ -15,4 +15,10 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
         }
     }
+}
+dependencies {
+    testImplementation 'junit:junit:4.12'
+    androidTestImplementation 'com.android.support.test:runner:+'
+    androidTestImplementation 'com.android.support.test.espresso:espresso-core:+'
+    implementation 'com.android.support:appcompat-v7:26.+'
 }

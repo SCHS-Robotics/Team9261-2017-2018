@@ -52,6 +52,9 @@ public abstract class Robot {
 
     public final void driverControlledUpdate()
     {
+        this.gamepad1 = opMode.gamepad1;
+        this.gamepad2 = opMode.gamepad2;
+
         for (SubSystem subSystem : subSystems.values())
         {
             try {

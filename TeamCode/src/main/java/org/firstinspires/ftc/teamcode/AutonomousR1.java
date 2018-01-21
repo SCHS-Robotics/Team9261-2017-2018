@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.Autonomous.AutoR;
+package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.firstinspires.ftc.teamcode.BaseOpModeR;

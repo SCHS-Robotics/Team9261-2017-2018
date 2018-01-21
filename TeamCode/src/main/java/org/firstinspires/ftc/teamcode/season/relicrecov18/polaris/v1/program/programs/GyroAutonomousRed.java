@@ -1,11 +1,10 @@
 package org.firstinspires.ftc.teamcode.season.relicrecov18.polaris.v1.program.programs;
 
-import android.text.format.DateUtils;
-
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.firstinspires.ftc.robotcontroller.internal.FtcRobotControllerActivity;
 import org.firstinspires.ftc.robotcore.external.navigation.RelicRecoveryVuMark;
+import org.firstinspires.ftc.teamcode.AutoTransitioner;
 import org.firstinspires.ftc.teamcode.robot.Robot;
 import org.firstinspires.ftc.teamcode.season.relicrecov18.polaris.v1.program.PolarisAutonomousProgram;
 import org.firstinspires.ftc.teamcode.season.relicrecov18.polaris.v1.robot.Jewel;
@@ -21,10 +20,8 @@ import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.TimeZone;
 
 import static org.opencv.imgproc.Imgproc.CV_HOUGH_GRADIENT;
 
@@ -34,6 +31,7 @@ import static org.opencv.imgproc.Imgproc.CV_HOUGH_GRADIENT;
 @Autonomous(name = "GyroAuto Red", group = "Autonomous")
 public class GyroAutonomousRed extends PolarisAutonomousProgram implements CameraBridgeViewBase.CvCameraViewListener2 {
     String direction;
+    RelicRecoveryVuMark key;
     @Override
     protected Robot buildRobot() {
         Robot robot = super.buildRobot();
@@ -42,62 +40,79 @@ public class GyroAutonomousRed extends PolarisAutonomousProgram implements Camer
 
     @Override
     public void main() throws InterruptedException {
-        startOpenCV(this);
-        // RelicRecoveryVuMark key = RelicRecoveryVuMark.UNKNOWN;
-        //long utcOffset = TimeZone.getDefault().getOffset(System.currentTimeMillis());
-        // boolean state = true;
-        /*
-        while(opModeIsActive() && type == RelicRecoveryVuMark.UNKNOWN && state) {
-            key = navi.key;
-            int secondsPassed = (int)((System.currentTimeMillis() + utcOffset) % DateUtils.DAY_IN_MILLIS / 1000);
-            if(secondsPassed > 5) {
-                telemetry.addData("Timed Out", "Of Vuforia");
-                state = false;
-            }
+        AutoTransitioner.transitionOnStop(this, "Competition TeleOp");
+        while(!drive.imu.isGyroCalibrated() && !isStarted() && !isStopRequested()){
+            sleep(50);
         }
+        drive.notifyGyroReady();
+        navi.setupVuforia();
+        while(!navi.vuforiaSetup && !isStarted() && !isStopRequested()){}
+        navi.startVuforia();
+        while (!isStarted() && !isStopRequested()) {
+            navi.updateVuforia();
+            telemetry.addData("key", navi.key);
+            telemetry.update();
+        }
+        navi.stopVuforia();
+        waitForStart();
 
-        */
-        // telemetry.addData("key",key);
-        //telemetry.update();
-        jewel.moveAxe(Jewel.axePos.MIDDLE);
+        while(navi.vuforiaSetup){}
+        key = navi.key;
+        jewelDetector.startOpenCV(jewelDetector);
         sleep(3000);
-        if (direction =="left"){
-            jewel.moveArm(Jewel.armPos.DOWN);
-            sleep(1000);
-            //drive.driveDistance(5, -0.8);
-            jewel.moveAxe(Jewel.axePos.BACK);
-            sleep(1000);
-        }
-        else if (direction == "right"){
-            jewel.moveArm(Jewel.armPos.DOWN);
-            sleep(1000);
-            //drive.driveDistance(5, 0.8);
-            jewel.moveAxe(Jewel.axePos.FRONT);
-            sleep(1000);
-        }
-        jewel.moveAxe(Jewel.axePos.MIDDLE );
+        jewelDetector.stopOpenCV();
+        belt.electionIsRigged();
         sleep(1000);
-        jewel.moveArm(Jewel.armPos.UP);
-        sleep(1000);
-        drive.driveDistance(30, -0.8);
+
+        belt.deploy();
         sleep(2000);
-        /*
-        if(key == RelicRecoveryVuMark.LEFT)
-        drive.strafeDistance(-6.1, 0.8);
-        }else if(key == RelicRecoveryVuMark.RIGHT){
-        drive.strafeDistance(6.1, 0.8);
+        belt.stopDeploy();
+        jewel.moveAxe(Jewel.axePos.UPPERMID);
+        sleep(500);
+        jewel.moveAxe(Jewel.axePos.LOWERMID);
+        sleep(500);
+        jewel.moveAxe(Jewel.axePos.DOWN);
+        sleep(250);
+        if(jewelDetector.direction == "left") {
+            jewel.moveArm(Jewel.armPos.RIGHT);
+        }
+        else if(jewelDetector.direction == "right") {
+            jewel.moveArm(Jewel.armPos.LEFT);
         }
         sleep(1000);
-        */
-        drive.turnGyro(-90, 0.2);
-        sleep(1000);
-        drive.driveDistance(1.5,-0.8);
+        belt.stopDeploy();
+        jewel.moveArm(Jewel.armPos.MIDDLE);
+        sleep(1500);
+        jewel.moveAxe(Jewel.axePos.UP);
+        sleep(2000);
+        belt.rigThatElection();
+        jewel.moveAxe(Jewel.axePos.UP);
+        /*belt.intakeBlock();
         belt.spitBlock();
-        sleep(2000);
+        sleep(1000);
+        belt.rigThatElection();
+        belt.stopIntake();
         belt.stopSpitting();
-        drive.driveDistance(3, -0.8);
-        sleep(2000);
-        drive.driveDistance(3,0.8);
+        belt.clipBlock();
+        //drive.driveoffBalancingStone();*/
+        drive.driveMaintainYaw(28, 0.6, 0, 1);
+        drive.turnExact(0.2, 45, 1);
+        drive.driveMaintainYaw(38, -0.8, 45, 1 );
+        drive.turnExact(0.2, 0, 1);
+        if (key == RelicRecoveryVuMark.LEFT){      //this check assumes that robot arrives at center. generally, check for left/center/right but the arrived column
+            drive.strafeMaintainYaw(6, -.5, 0, 1);      //strafe left
+        }else if(key == RelicRecoveryVuMark.RIGHT){
+            drive.strafeMaintainYaw(6, .5, 0, 1);       //strafe right
+        }   //don't need else, since you'll be at desired column
+        sleep(500);
+        belt.unclipBlock();
+        belt.gateGranted();
+        drive.driveMaintainYaw(6, -0.4, 0, 1);
+        sleep(500);
+        belt.spitBlock();
+        sleep(3000);
+        belt.stopSpitting();
+        drive.driveMaintainYaw(2, 0.4, 0, 1);
 
     }
     @Override

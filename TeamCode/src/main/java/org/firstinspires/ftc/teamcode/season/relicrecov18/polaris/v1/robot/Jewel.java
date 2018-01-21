@@ -1,9 +1,5 @@
 package org.firstinspires.ftc.teamcode.season.relicrecov18.polaris.v1.robot;
 
-import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cColorSensor;
-import com.qualcomm.robotcore.hardware.CRServo;
-import com.qualcomm.robotcore.hardware.ColorSensor;
-import com.qualcomm.robotcore.hardware.I2cAddr;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.robot.Robot;
@@ -27,19 +23,19 @@ public class Jewel extends SubSystem {
         /*color1 = robot.hardwareMap.colorSensor.get("color1");
         color1.setI2cAddress(I2cAddr.create7bit(0x39));
         color1.enableLed(true);*/
-        moveArm(armPos.UP);
-        moveAxe(axePos.BACK );
+        moveArm(armPos.MIDDLE);
+        moveAxe(axePos.UP);
     }
 
     public enum armPos{
-        DOWN(.7), UP(0);
+        LEFT(1), MIDDLE(.28), RIGHT(0), RETURN(0.2);
         public double pos;
         armPos(double pos){
             this.pos = pos;
         }
     }
     public enum axePos{
-        BACK(0), MIDDLE(0.6),FRONT(1);
+        DOWN(0.1), UP(0.6), UPPERMID(0.4), LOWERMID(0.25);
         public double ap;
         axePos(double ap){ this.ap = ap;}
     }
@@ -57,6 +53,11 @@ public class Jewel extends SubSystem {
     }
 */
 
+    public void slowMoveAxe(axePos finalPos) {
+        while(axe.getPosition() < finalPos.ap) {
+            axe.setPosition(axe.getPosition()+0.01);
+        }
+    }
 
     @Override
     public void stop() {

@@ -41,6 +41,8 @@ import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbManager;
 import android.net.wifi.WifiManager;
@@ -118,7 +120,16 @@ import org.opencv.android.CameraBridgeViewBase;
 import org.opencv.android.JavaCameraView;
 import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
+import org.opencv.android.Utils;
+import org.opencv.core.Mat;
+import org.opencv.imgcodecs.Imgcodecs;
+import org.opencv.imgproc.Imgproc;
+import org.opencv.objdetect.CascadeClassifier;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -129,6 +140,8 @@ public class FtcRobotControllerActivity extends Activity
     public static final String TAG = "RCActivity";
     public String getTag() { return TAG; }
 
+    public static CascadeClassifier face_cascade;
+    public static Mat pictographTemplate;
   private static final int REQUEST_CONFIG_WIFI_CHANNEL = 1;
   private static final int NUM_GAMEPADS = 2;
 
@@ -140,6 +153,7 @@ public class FtcRobotControllerActivity extends Activity
 
   protected UpdateUI.Callback callback;
   protected Context context;
+  public static Context readableContext;
   protected Utility utility;
   protected StartResult deviceNameManagerStartResult = new StartResult();
   protected StartResult prefRemoterStartResult = new StartResult();
@@ -180,6 +194,7 @@ public class FtcRobotControllerActivity extends Activity
           case LoaderCallbackInterface.SUCCESS: {
             Log.i(TAG, "OpenCV loaded successfully");
             mOpenCvCameraView.enableView();
+            loadCascade();
           }
           break;
           default: {
@@ -675,7 +690,40 @@ public class FtcRobotControllerActivity extends Activity
       });
     }
   }
+  private void loadCascade() {
 
+    try {
+      InputStream is = getResources().openRawResource(R.raw.jewelcascade);
+      File cascadeDir = getDir("cascade", Context.MODE_PRIVATE);
+      File mCascadeFile = new File(cascadeDir, "cascade");
+      FileOutputStream os = new FileOutputStream(mCascadeFile);
+      byte[] buffer = new byte[4096];
+      int bytesRead;
+      while ((bytesRead = is.read(buffer)) != -1) {
+        os.write(buffer, 0, bytesRead);
+      }
+      is.close();
+      os.close();
+      face_cascade = new CascadeClassifier(mCascadeFile.getAbsolutePath());
+      if (face_cascade.empty()) {
+        Log.v("MyActivity", "--(!) Error loading A\n");
+        return;
+      } else {
+        Log.v("MyActivity", "Loaded cascade classifier from " + mCascadeFile.getAbsolutePath());
+      }
+    } catch (IOException e) {
+      e.printStackTrace();
+      Log.v("MyActivity", "Failed to load cascade. Exception thrown: " + e);
+
+    }
+    try {
+      pictographTemplate = Utils.loadResource(context,R.drawable.left,0);
+      readableContext = context;
+    }
+    catch(Exception e) {
+      e.printStackTrace();
+    }
+  }
   protected class SharedPreferencesListener implements SharedPreferences.OnSharedPreferenceChangeListener {
     @Override public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
       if (key.equals(context.getString(R.string.pref_app_theme))) {
