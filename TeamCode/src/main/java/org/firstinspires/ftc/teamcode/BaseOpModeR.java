@@ -557,14 +557,14 @@ public abstract class BaseOpModeR extends LinearOpMode
 
     public void SCCWDegrees(double degrees) throws InterruptedException
     {
-        double degreeticks = ((4.006 * degrees) / (4 * java.lang.Math.sqrt(2) * 360));
+        double degreeticks = ((4.006 * degrees) / (4 * Math.sqrt(2) * 360));
         int aticks = (int)Math.round(degreeticks);
         SCCWETicks(1, aticks);
     }
 
     public void SCWDegrees(double degrees) throws InterruptedException
     {
-        double degreeticks = ((4.006 * degrees) / (4 * java.lang.Math.sqrt(2) * 360));
+        double degreeticks = ((4.006 * degrees) / (4 * Math.sqrt(2) * 360));
         int aticks = (int)Math.round(degreeticks);
         SCWETicks(1, aticks);
     }

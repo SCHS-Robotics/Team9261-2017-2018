@@ -1,12 +1,8 @@
 package org.firstinspires.ftc.teamcode.season.relicrecov18.polaris.v1.program.programs;
 
-import android.text.format.DateUtils;
-
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 
 import org.firstinspires.ftc.robotcontroller.internal.FtcRobotControllerActivity;
-import org.firstinspires.ftc.robotcore.external.navigation.RelicRecoveryVuMark;
 import org.firstinspires.ftc.teamcode.robot.Robot;
 import org.firstinspires.ftc.teamcode.season.relicrecov18.polaris.v1.program.PolarisAutonomousProgram;
 import org.firstinspires.ftc.teamcode.season.relicrecov18.polaris.v1.robot.Jewel;
@@ -22,10 +18,8 @@ import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.TimeZone;
 
 import static org.opencv.imgproc.Imgproc.CV_HOUGH_GRADIENT;
 
@@ -44,25 +38,25 @@ public class GyroTestRed extends PolarisAutonomousProgram implements CameraBridg
     @Override
     public void main() throws InterruptedException {
         startOpenCV(this);
-        jewel.moveAxe(Jewel.axePos.MIDDLE);
+        jewel.moveAxe(Jewel.axePos.UP);
         sleep(3000);
         if (direction =="left"){
-            jewel.moveArm(Jewel.armPos.DOWN);
+            jewel.moveArm(Jewel.armPos.LEFT);
             sleep(1000);
             //drive.driveDistance(5, -0.8);
-            jewel.moveAxe(Jewel.axePos.BACK);
+            jewel.moveAxe(Jewel.axePos.DOWN);
             sleep(1000);
         }
         else if (direction == "right"){
-            jewel.moveArm(Jewel.armPos.DOWN);
+            jewel.moveArm(Jewel.armPos.LEFT);
             sleep(1000);
             //drive.driveDistance(5, 0.8);
-            jewel.moveAxe(Jewel.axePos.FRONT);
+           // jewel.moveAxe(Jewel.axePos.FRONT);
             sleep(1000);
         }
-        jewel.moveAxe(Jewel.axePos.MIDDLE );
+        jewel.moveAxe(Jewel.axePos.UP);
         sleep(1000);
-        jewel.moveArm(Jewel.armPos.UP);
+        jewel.moveArm(Jewel.armPos.RIGHT);
         sleep(1000);
         drive.driveDistance(30, 0.8);
         sleep(2000);
@@ -74,12 +68,9 @@ public class GyroTestRed extends PolarisAutonomousProgram implements CameraBridg
         }
         sleep(1000);
         */
-        drive.turnGyro(90, 0.2);
+       // drive.turnExact(90, 0.2);
         sleep(1000);
         drive.driveDistance(1.5,0.8);
-        belt.spitBlock();
-        sleep(2000);
-        belt.stopSpitting();
         drive.driveDistance(3, 0.8);
         sleep(2000);
         drive.driveDistance(3,-0.8);

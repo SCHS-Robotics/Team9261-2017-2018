@@ -27,6 +27,7 @@ public class Vector {
                 this.theta = 0;
             }
             this.theta = this.theta > 0 ? this.theta : this.theta + 2 * Math.PI; //To make everything positive, because I don't like negative angles as much
+            this.r = Math.sqrt(Math.pow(inx,2)+Math.pow(iny,2));
         }
         else if(inCoord == CoordinateType.POLAR) {
             this.r = inx;
@@ -39,6 +40,7 @@ public class Vector {
     public Vector(double inx, double iny) {
         this.x = inx;
         this.y = iny;
+
         if(inx > 0) {
             this.theta = Math.atan(iny/inx);
         }
@@ -54,7 +56,23 @@ public class Vector {
         else {
             this.theta = 0;
         }
+
+        //test code
+        /*
+        if(inx == 0 && iny > 0) {
+            this.theta = Math.PI/2;
+        }else if(inx == 0 && iny < 0) {
+            this.theta = -Math.PI/2;
+        }else if(inx < 0 && iny == 0){
+            this.theta = Math.PI;
+        }else if(inx > 0 && iny == 0){
+            this.theta = 0;
+        }else{
+            this.theta=Math.atan(iny/inx);
+        }
+        */
         this.theta = this.theta > 0 ? this.theta : this.theta + 2*Math.PI; //To make everything positive, because I don't like negative angles as much
+        this.r = Math.sqrt(Math.pow(inx,2)+Math.pow(iny,2));
     }
     //Counterclockwise is positive, clockwise is negative
     //must be in radians

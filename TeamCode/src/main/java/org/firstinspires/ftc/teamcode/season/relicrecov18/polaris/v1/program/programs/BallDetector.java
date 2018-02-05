@@ -91,9 +91,9 @@ public class BallDetector implements Callable<Circle> {
 
         //Close all the holes in the contours
         //It is resized to increase speed and impact of the kernel
-        Imgproc.resize(edges, edges, new Size(160, 90));
+/*        Imgproc.resize(edges, edges, new Size(160, 90));
         Imgproc.morphologyEx(edges, edges, Imgproc.MORPH_CLOSE, structure);
-        Imgproc.resize(edges, edges, new Size(640, 360));
+*/         Imgproc.resize(edges, edges, new Size(320, 180));
 
         //Get all the contours of the edges
         Imgproc.findContours(edges,contours,new Mat(),Imgproc.RETR_TREE,Imgproc.CHAIN_APPROX_SIMPLE);
@@ -103,18 +103,19 @@ public class BallDetector implements Callable<Circle> {
         if(contours.size() > 0) {
 
             //Get the convex hull for each of the contours, and add them to a list
+            /*
             for(MatOfPoint c : contours) {
                 Imgproc.convexHull(c, hull);
                 hullPoint = convertIndexesToPoints(c,hull); //Finds the MatOfPoint that the hull describes
                 hullPoints.add(hullPoint);
             }
-
+*/
             //Draw the convex hulls back on to the edges
             //This is done so that if any contour is unclosed, the algorithm can still use the convex hull for reference
-            drawContours(edges,hullPoints,-1,(new Scalar(255,255,255)));
+            //drawContours(edges,hullPoints,-1,(new Scalar(255,255,255)));
 
             //Perform a median blue to reduce noise
-            Imgproc.medianBlur(edges,edges,5);
+            //Imgproc.medianBlur(edges,edges,5);
 
             //Find the contours of the edges and convex hulls
             Imgproc.findContours(edges, contours, new Mat(), Imgproc.RETR_TREE, Imgproc.CHAIN_APPROX_SIMPLE);
@@ -126,7 +127,7 @@ public class BallDetector implements Callable<Circle> {
             for (MatOfPoint c : contours) {
                 contourArea = Imgproc.contourArea(c);
                 Imgproc.minEnclosingCircle(new MatOfPoint2f(c.toArray()), contourCenter, contourRadius); //Get the center and radius of the minimum size circle that encloses the contour
-                if (contourArea / (Math.PI * Math.pow(contourRadius[0], 2)) >= circularityTheshold) {
+                if ((contourArea / (Math.PI * Math.pow(contourRadius[0], 2)) >= circularityTheshold) && (Imgproc.arcLength(new MatOfPoint2f(c.toArray()),true))/(Math.PI*contourRadius[0]*2) >= circularityTheshold && Imgproc.contourArea(c) > 50) {
                     circularContours.add(c); //Add contour to list for later analysis
                 }
             }

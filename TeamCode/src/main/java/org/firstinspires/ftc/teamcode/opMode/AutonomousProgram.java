@@ -2,6 +2,8 @@ package org.firstinspires.ftc.teamcode.opMode;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
+import org.firstinspires.ftc.robotcore.internal.opmode.OpModeManagerImpl;
+import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
 import org.firstinspires.ftc.teamcode.robot.Robot;
 import org.firstinspires.ftc.teamcode.util.Condition;
 
@@ -25,7 +27,7 @@ public abstract class AutonomousProgram extends LinearOpMode {
         } catch (Exception ex) {
             telemetry.addData("ERROR!!!", ex.getMessage());
         }
-        waitForStart();
+
 
         try {
             main();

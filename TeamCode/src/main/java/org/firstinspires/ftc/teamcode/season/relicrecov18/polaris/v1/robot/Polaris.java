@@ -12,8 +12,11 @@ public class Polaris extends Robot {
     public Polaris(OpMode opMode){
         super(opMode);
         putSubSystem("Drive", new Drive(this));
-        putSubSystem("Belt", new Belt(this));
+        putSubSystem("Intake", new Intake(this));
         putSubSystem("Jewel", new Jewel(this));
-
+        putSubSystem("Navi",new Navi(this));
+        putSubSystem("JewelDetector", new JewelDetector(this));
+        putSubSystem("CryptoboxRange", new CryptoboxRange(this));
+        putSubSystem("FlippyBoii", new FlippyBoii(this));
     }
 }
