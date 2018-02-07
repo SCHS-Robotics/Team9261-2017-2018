@@ -4,7 +4,6 @@ import org.firstinspires.ftc.teamcode.opMode.AutonomousProgram;
 import org.firstinspires.ftc.teamcode.robot.Robot;
 import org.firstinspires.ftc.teamcode.season.relicrecov18.polaris.v1.robot.FlippyBoii;
 import org.firstinspires.ftc.teamcode.season.relicrecov18.polaris.v1.robot.Intake;
-import org.firstinspires.ftc.teamcode.season.relicrecov18.polaris.v1.robot.CryptoboxRange;
 import org.firstinspires.ftc.teamcode.season.relicrecov18.polaris.v1.robot.Drive;
 import org.firstinspires.ftc.teamcode.season.relicrecov18.polaris.v1.robot.Jewel;
 import org.firstinspires.ftc.teamcode.season.relicrecov18.polaris.v1.robot.JewelDetector;
@@ -22,7 +21,6 @@ public abstract class PolarisAutonomousProgram extends AutonomousProgram {
     public Intake intake;
     public Navi navi;
     public JewelDetector jewelDetector;
-    public CryptoboxRange ranger;
     public FlippyBoii flippyBoii;
 
     @Override
@@ -35,7 +33,6 @@ public abstract class PolarisAutonomousProgram extends AutonomousProgram {
         navi = (Navi) polaris.getSubSystem("Navi");
         intake = (Intake) polaris.getSubSystem("Intake");
         jewelDetector = (JewelDetector) polaris.getSubSystem("JewelDetector");
-        ranger = (CryptoboxRange) polaris.getSubSystem("CryptoboxRange");
         flippyBoii = (FlippyBoii) polaris.getSubSystem("FlippyBoii");
 
         return polaris;

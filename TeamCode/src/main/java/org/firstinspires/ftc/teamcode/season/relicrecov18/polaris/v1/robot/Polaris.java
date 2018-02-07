@@ -16,7 +16,6 @@ public class Polaris extends Robot {
         putSubSystem("Jewel", new Jewel(this));
         putSubSystem("Navi",new Navi(this));
         putSubSystem("JewelDetector", new JewelDetector(this));
-        putSubSystem("CryptoboxRange", new CryptoboxRange(this));
         putSubSystem("FlippyBoii", new FlippyBoii(this));
     }
 }

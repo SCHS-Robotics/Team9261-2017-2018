@@ -137,13 +137,6 @@ public class GyroAutonomousRed extends PolarisAutonomousProgram implements Camer
         drive.turnExact(0.2, 90, 1);
         drive.driveMaintainYaw(4, 0.8, 90, 1);
         intake.stopIntake();
-        flippyBoii.alignblock();
-        sleep(1000);
-        flippyBoii.doneAligning();
-        sleep(500);
-        flippyBoii.alignblock();
-        sleep(1000);
-        flippyBoii.doneAligning();
         drive.driveMaintainYaw(40, -0.8, 90, 1);
         if (latestKey == "left") {
             drive.turnExact(0.2, 90, 1);

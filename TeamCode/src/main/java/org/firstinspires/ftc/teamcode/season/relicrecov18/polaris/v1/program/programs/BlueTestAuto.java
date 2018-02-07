@@ -96,9 +96,6 @@ public class BlueTestAuto extends PolarisAutonomousProgram implements CameraBrid
         intake.spitintake();
         sleep(500);
         intake.stopIntake();
-        flippyBoii.alignblock();
-        sleep(1000);
-        flippyBoii.doneAligning();
         if(latestKey == "left"){
             drive.turnExact(0.2, 45, 1);
             flippyBoii.dispense();
@@ -135,9 +132,6 @@ public class BlueTestAuto extends PolarisAutonomousProgram implements CameraBrid
         drive.turnExact(0.2, 90, 1);
         drive.driveMaintainYaw(4, 0.8, 90, 1);
         intake.stopIntake();
-        flippyBoii.alignblock();
-        sleep(1000);
-        flippyBoii.doneAligning();
         drive.driveMaintainYaw(30, -0.8, 90, 1);
         if(latestKey == "left"){
             drive.turnExact(0.2, 90, 1);
@@ -179,99 +173,6 @@ public class BlueTestAuto extends PolarisAutonomousProgram implements CameraBrid
             drive.turnExact(0.2, 90, 1);
         }
         drive.driveMaintainYaw(3, 0.8, 90, 1);
-
-
-
-        /*drive.driveMaintainYaw(28, 0.6, 0, 1);//drive forward a distance in inches, at a power maintaining an angle
-        drive.turnExact(0.2, -90, 1);
-        drive.driveMaintainYaw(38, -0.8, -90, 1 );
-        drive.turnExact(0.2, 0, 1);
-        if (navi.key == RelicRecoveryVuMark.LEFT){      //this check assumes that robot arrives at center. generally, check for left/center/right but the arrived column
-            drive.turnExact(0.2, -135, 1);     //strafe left
-            drive.driveMaintainYaw(-2, 0.8, -135, 1);
-        }else if(navi.key == RelicRecoveryVuMark.RIGHT){
-            drive.turnExact(0.2, -45, 1);       //strafe right
-            drive.driveMaintainYaw(-2, 0.8, -45, 1);
-        }   //don't need else, since you'll be at desired column
-        sleep(500);
-        drive.driveMaintainYaw(7.5, -0.4, 0, 1);
-        sleep(500);
-        drive.driveMaintainYaw(2, 0.4, 0, 1);
-        /*
-        belt.requestGate();
-        drive.driveMaintainYaw(2, 0.6, 0, 1);
-        sleep(500);
-        drive.driveMaintainYaw(12, 0.8, 0, 1);
-        belt.intakeBlock();
-        belt.spitBlock();
-        drive.driveMaintainYaw(10, 0.4, 0, 1);
-        belt.spitintake();
-        sleep(500);
-        belt.stopIntake();
-        drive.driveMaintainYaw(11, 0.2, 0,1 );
-        belt.stopSpitting();
-        belt.clipBlock();
-        belt.gateGranted();
-        drive.driveMaintainYaw(22, -0.8, 0, 1);
-        belt.unclipBlock();
-        belt.spitBlock();
-        sleep(3000);
-        belt.stopSpitting();
-        sleep(500);
-        drive.driveMaintainYaw(2, 0.6, 0, 1);
-        drive.driveMaintainYaw(2, -0.6, 0, 1);
-        sleep(500);
-        belt.spitBlock();
-        sleep(1250);
-        belt.stopSpitting();
-        drive.driveMaintainYaw(2, 0.6, 0, 1);
-        drive.driveDistance(20, -0.5);//correct
-        drive.turnGyro(45, 0.2);
-        drive.driveDistance(30, 0.5);//correct
-        drive.turnGyro(0, 0.2);
-        belt.deploy();
-        jewel.moveAxe(Jewel.axePos.UP);
-        sleep(3000);
-        jewel.moveArm(Jewel.armPos.UP);
-        if (direction =="left") {
-            telemetry.addLine("I would have hit left");
-            sleep(1000);
-            jewel.moveArm(Jewel.armPos.RIGHT);
-        }
-        else if (direction == "right"){
-            telemetry.addLine("I would have hit right");
-            sleep(1000);
-            jewel.moveArm(Jewel.armPos.LEFT);
-        }
-        sleep(1000);
-        jewel.moveAxe(Jewel.axePos.FRONT);
-        sleep(1000);
-        jewel.moveArm(Jewel.armPos.LEFT);
-        sleep(1000);
-        jewel.moveAxe(Jewel.axePos.DOWN);
-        stopOpenCV();
-        /*
-        sleep(1000);
-        drive.driveDistance(30, -0.8);
-        sleep(2000);
-        /*
-        if(key == RelicRecoveryVuMark.LEFT)
-        drive.strafeDistance(6.1, -0.8);
-        }else if(key == RelicRecoveryVuMark.RIGHT){
-        drive.strafeDistance(6.1, 0.8);
-        }
-        sleep(1000);
-
-        drive.turnGyro(-90, 0.2);
-        sleep(1000);
-        drive.driveDistance(1.5,-0.8);
-        belt.spitBlock();
-        sleep(2000);
-        belt.stopSpitting();
-        drive.driveDistance(3, -0.8);
-        sleep(2000);
-        drive.driveDistance(3,0.8);
-*/
     }
     @Override
     public void onCameraViewStarted(int width, int height) {

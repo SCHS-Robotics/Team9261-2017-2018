@@ -23,46 +23,36 @@ import static android.os.SystemClock.sleep;
  */
 @TeleOp(name = "1ManDrive", group = "OpMode")
 public class MecanumDrive extends OpMode{
-    private DcMotor motor1, motor2, motor3, motor4; //motors 1 & 3 are left motors
+    private DcMotor motor1, motor2, motor3, motor4, motor5, motor6, motor7, motor8; //motors 1 & 3 are left motors
 
-    private DcMotor motor5, motor6; //glyph motors
-
-    private DcMotor motor7, motor8;
-
-    private CRServo leftcr, rightcr;
-
-    private Servo servo1, servo2, servo3;       //servo1 is gate, servo2 is putin, servo3 is hammer
+    private Servo servo1, servo2, servo3;
 
     //private Servo glyphservo;
 
     @Override
     public void init(){
         motor1 = hardwareMap.dcMotor.get("motor1");
-        motor1.setDirection(DcMotor.Direction.FORWARD);
+        motor1.setDirection(DcMotor.Direction.REVERSE);
         motor2 = hardwareMap.dcMotor.get("motor2");
-        motor2.setDirection(DcMotor.Direction.REVERSE);
+        motor2.setDirection(DcMotor.Direction.FORWARD);
 
         motor3 = hardwareMap.dcMotor.get("motor3");
-        motor3.setDirection(DcMotor.Direction.FORWARD);
+        motor3.setDirection(DcMotor.Direction.REVERSE);
         motor4 = hardwareMap.dcMotor.get("motor4");
-        motor4.setDirection(DcMotor.Direction.REVERSE);
+        motor4.setDirection(DcMotor.Direction.FORWARD);
 
-        motor5 = hardwareMap.dcMotor.get("motor5");
-        motor6 = hardwareMap.dcMotor.get("motor6");
-        motor7 = hardwareMap.dcMotor.get("motor7");
-        motor8 = hardwareMap.dcMotor.get("motor8");
+        motor4 = hardwareMap.dcMotor.get("leftintake");     //leftintake and rightintake are flipped
+        motor5 = hardwareMap.dcMotor.get("rightintake");
+        motor7 = hardwareMap.dcMotor.get("flippyboialpha");
+        motor8 = hardwareMap.dcMotor.get("flippyboibeta");
 
         motor5.setDirection(DcMotor.Direction.FORWARD);
         motor6.setDirection(DcMotor.Direction.REVERSE);
         motor7.setDirection(DcMotor.Direction.FORWARD);
-        motor8.setDirection(DcMotor.Direction.FORWARD);
+        motor8.setDirection(DcMotor.Direction.REVERSE);
 
-        leftcr = hardwareMap.crservo.get("leftcr");     //leftcr and rightcr are flipped
-        rightcr = hardwareMap.crservo.get("rightcr");
-
-        leftcr.setDirection(CRServo.Direction.REVERSE);
-        rightcr.setDirection(CRServo.Direction.FORWARD);
-
+        servo1 = hardwareMap.servo.get("dumptruck1");
+        servo2 = hardwareMap.servo.get("dumptruck2");
 
     }
 
@@ -88,13 +78,9 @@ public class MecanumDrive extends OpMode{
         if(gamepad1.b) {
             motor5.setPower(gamepad1.right_stick_y);
             motor6.setPower(gamepad1.right_stick_y);
-            leftcr.setPower(gamepad1.right_stick_y+gamepad1.right_stick_x);
-            rightcr.setPower(gamepad1.right_stick_y-gamepad1.right_stick_x);
         }else {
-            motor5.setPower(gamepad1.right_stick_y*0.7);
-            motor6.setPower(gamepad1.right_stick_y*0.7);
-            leftcr.setPower(gamepad1.right_stick_y+gamepad1.right_stick_x/2);
-            rightcr.setPower(gamepad1.right_stick_y-gamepad1.right_stick_x/2);
+            motor5.setPower(gamepad1.right_stick_y);
+            motor6.setPower(gamepad1.right_stick_y);
         }
 
     }

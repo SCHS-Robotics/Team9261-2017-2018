@@ -8,13 +8,15 @@ import com.qualcomm.robotcore.util.Range;
 import org.firstinspires.ftc.teamcode.robot.Robot;
 import org.firstinspires.ftc.teamcode.robot.SubSystem;
 
+import static java.lang.Thread.sleep;
+
 /**
  * Created by andre_000 on 01/22/2018.
  */
 
 public class FlippyBoii extends SubSystem {
     private DcMotor flippyboiAlpha, flippyboiBeta;
-    private Servo dumpTruck1, dumpTruck2, dumpTruck3;
+    private Servo dumpTruck1, unstick, dumpTruck3;
     public FlippyBoii(Robot robot) {
         super(robot);
     }
@@ -26,19 +28,20 @@ public class FlippyBoii extends SubSystem {
         flippyboiBeta.setDirection(DcMotor.Direction.REVERSE);
 
         dumpTruck1 = robot.hardwareMap.servo.get("dumptruck1");
-        dumpTruck2 = robot.hardwareMap.servo.get("dumptruck2");
+        unstick = robot.hardwareMap.servo.get("unstick");
         dumpTruck3 = robot.hardwareMap.servo.get("dumptruck3");
-        dumpTruck1.setPosition(0.6);
-        dumpTruck2.setPosition(1);
-        dumpTruck3.setPosition(0.4);
+        dumpTruck1.setPosition(0.9);
+        unstick.setPosition(0);
+        dumpTruck3.setPosition(0.1);
     }
 
     @Override
     public void handle() {
-        flippyboiAlpha.setPower(robot.gamepad2.left_stick_y * Math.abs(robot.gamepad2.left_stick_y));
-        flippyboiBeta.setPower(robot.gamepad2.left_stick_y * Math.abs(robot.gamepad2.left_stick_y));
+        //flippyboiAlpha.setPower(robot.gamepad2.left_stick_y * Math.abs(robot.gamepad2.left_stick_y));
+        //flippyboiBeta.setPower(robot.gamepad2.left_stick_y * Math.abs(robot.gamepad2.left_stick_y));
         if(robot.gamepad2.a){   //original had a check of 1-trigger>.6
-            dumpTruck1.setPosition(0.48);
+            dumpTruck1.setPosition(0.3);
+            dumpTruck3.setPosition(0.7);
         }else {
             Thread dump1 = new Thread() {
                 @Override
@@ -55,21 +58,43 @@ public class FlippyBoii extends SubSystem {
             dump1.start();
             dump2.start();
         }
-        dumpTruck2.setPosition(Range.clip(1 - robot.gamepad2.right_trigger, 0, 1));
+        if (robot.gamepad2.left_stick_y>0){
+            flippyboiAlpha.setPower(robot.gamepad2.left_stick_y * leftUpTernaryConstant());
+            flippyboiBeta.setPower(robot.gamepad2.left_stick_y * rightUpTernaryConstant());
+        }
+        else if(robot.gamepad2.left_stick_y<0){
+            flippyboiAlpha.setPower(robot.gamepad2.left_stick_y * leftDownTernaryConstant());
+            flippyboiBeta.setPower(robot.gamepad2.left_stick_y * rightDownTernaryConstant());
+        }
+        unstick.setPosition(Range.clip(robot.gamepad2.right_trigger, 0, 1));
     }
     public void dispense(){
-        dumpTruck1.setPosition(1);
-    }
-    public void stopDispense(){
         dumpTruck1.setPosition(0.2);
+        dumpTruck3.setPosition(0.8);
+        unstick.setPosition(1);
     }
-    public void alignblock(){
-        dumpTruck2.setPosition(0);
+    public void stopDispense()throws InterruptedException{
+        unstick.setPosition(0);
+        sleep(500);
+        dumpTruck1.setPosition(0.9);
+        dumpTruck3.setPosition(0.1);
     }
-    public void doneAligning(){
-        dumpTruck2.setPosition(1);
+    public int leftUpTernaryConstant(){
+        int constant = flippyboiAlpha.getCurrentPosition()>900?0:1;
+        return constant;
     }
-
+    public int rightUpTernaryConstant(){
+        int constant = flippyboiBeta.getCurrentPosition()>900?0:1;
+        return constant;
+    }
+    public int leftDownTernaryConstant(){
+        int constant = flippyboiAlpha.getCurrentPosition()<0?0:1;
+        return constant;
+    }
+    public int rightDownTernaryConstant(){
+        int constant = flippyboiBeta.getCurrentPosition()<0?0:1;
+        return constant;
+    }
     @Override
     public void stop() {
 
