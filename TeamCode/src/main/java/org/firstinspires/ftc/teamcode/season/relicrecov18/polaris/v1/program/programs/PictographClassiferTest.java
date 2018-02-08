@@ -16,6 +16,7 @@ import org.opencv.core.Point;
 import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
+import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 import org.opencv.objdetect.CascadeClassifier;
 
@@ -32,6 +33,7 @@ import java.util.concurrent.Future;
 @Autonomous(name = "Pictographer", group = "Fails")
 public class PictographClassiferTest extends LinearOpMode implements CameraBridgeViewBase.CvCameraViewListener2 {
     CascadeClassifier pictographDetector = FtcRobotControllerActivity.face_cascade;
+    int num = 0;
     @Override
     public void runOpMode() {
 
@@ -62,13 +64,23 @@ public class PictographClassiferTest extends LinearOpMode implements CameraBridg
 
         try {
             //Imgproc.threshold(raw,raw,45,45,Imgproc.THRESH_BINARY);
+            //pictographDetector.detectMultiScale(raw,boundingBoxes,1.1,5,0,new Size(100,100),new Size());
             pictographDetector.detectMultiScale(raw,boundingBoxes);
-            int i = 0;
+            int detections = 0;
             for(Rect rect:boundingBoxes.toList()) {
-                Imgproc.rectangle(raw,new Point(rect.x,rect.y),new Point(rect.x+rect.width,rect.y+rect.height),new Scalar(0,255,0),10);
-                i++;
+                //Imgproc.rectangle(raw, new Point(rect.x, rect.y), new Point(rect.x + rect.width, rect.y + rect.height), new Scalar(0, 255, 0), 10);
+                Mat roi = raw.submat(rect);
+                if (!roi.empty()) {
+                    //Imgcodecs.imwrite(Environment.getExternalStorageDirectory().getAbsolutePath() + "/DataCollection/" + num + ".jpg", roi);
+                    num++;
+                    detections++;
+                }
             }
-            telemetry.addData("number of detections", i);
+            for(Rect rect: boundingBoxes.toList()) {
+                Imgproc.rectangle(raw, new Point(rect.x, rect.y), new Point(rect.x + rect.width, rect.y + rect.height), new Scalar(0, 255, 0), 10);
+            }
+            //telemetry.addData("number of detections", detections);
+            //telemetry.addData("number of saved images",num);
         }
         //If Opencv throws an exception, it does not print what it is, so you need a try-catch statement to recognize errors
         catch (Exception e) {

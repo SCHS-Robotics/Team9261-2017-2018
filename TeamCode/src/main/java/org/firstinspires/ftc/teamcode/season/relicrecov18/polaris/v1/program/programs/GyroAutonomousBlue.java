@@ -56,37 +56,37 @@ public class GyroAutonomousBlue extends PolarisAutonomousProgram implements Came
         }
         navi.stopVuforia();
         waitForStart();
-
-        while(navi.vuforiaSetup){}
+        navi.setKey();      //this is where the key gets randomized if it is unknown
+        while(navi.vuforiaSetup){
+            telemetry.addData("key", navi.key);
+            telemetry.update();
+        }
         jewelDetector.startOpenCV(jewelDetector);
         sleep(3000);
         jewelDetector.stopOpenCV();
-        belt.electionIsRigged();
-        sleep(1000);
-
-        belt.deploy();
         sleep(2000);
-        belt.stopDeploy();
         jewel.moveAxe(Jewel.axePos.UPPERMID);
-        sleep(500);
-        jewel.moveAxe(Jewel.axePos.LOWERMID);
         sleep(500);
         jewel.moveAxe(Jewel.axePos.DOWN);
         sleep(250);
         if(jewelDetector.direction == "left") {
-            jewel.moveArm(Jewel.armPos.LEFT);
+            drive.turnExact(0.15, -10, 1);
+            jewel.moveAxe(Jewel.axePos.UP);
+            sleep(1500);
+            drive.turnExact(0.15, 0, 1);
+           /* jewel.moveArm(Jewel.armPos.LEFT);
+            sleep(1000);
+            jewel.moveArm(Jewel.armPos.MIDDLE);*/
         }
         else if(jewelDetector.direction == "right") {
-            jewel.moveArm(Jewel.armPos.RIGHT);
+            //drive.driveMaintainYaw(2, -0.8, 0, 1);
+            drive.turnExact(0.15, 10, 1);
+            jewel.moveAxe(Jewel.axePos.UP);
+            sleep(1500);
+            drive.turnExact(0.15, 0, 1);
         }
-        sleep(1000);
-        jewel.moveArm(Jewel.armPos.MIDDLE);
-        sleep(1000);
-        jewel.moveAxe(Jewel.axePos.UP);
-        sleep(1000);
-        belt.rigThatElection();
-        belt.putThatWallUp();
-        jewel.moveAxe(Jewel.axePos.UP);
+        sleep(3000);
+        //jewel.moveArm(Jewel.armPos.MIDDLE);
         //belt.intakeBlock();
         //belt.spitBlock();
         //sleep(1000);
@@ -95,23 +95,20 @@ public class GyroAutonomousBlue extends PolarisAutonomousProgram implements Came
         //belt.stopSpitting();
         //belt.clipBlock();
         //drive.driveoffBalancingStone();
-        drive.driveMaintainYaw(28, 0.6, 0, 1);//drive forward a distance in inches, at a power maintaining an angle
-        drive.turnExact(0.2, -45, 1);
-        drive.driveMaintainYaw(38, -0.8, -45, 1 );
+        /*drive.driveMaintainYaw(28, 0.6, 0, 1);//drive forward a distance in inches, at a power maintaining an angle
+        drive.turnExact(0.2, -90, 1);
+        drive.driveMaintainYaw(38, -0.8, -90, 1 );
         drive.turnExact(0.2, 0, 1);
         if (navi.key == RelicRecoveryVuMark.LEFT){      //this check assumes that robot arrives at center. generally, check for left/center/right but the arrived column
-            drive.strafeMaintainYaw(6, -.5, 0, 1);      //strafe left
+            drive.turnExact(0.2, -135, 1);     //strafe left
+            drive.driveMaintainYaw(-2, 0.8, -135, 1);
         }else if(navi.key == RelicRecoveryVuMark.RIGHT){
-            drive.strafeMaintainYaw(6, .5, 0, 1);       //strafe right
+            drive.turnExact(0.2, -45, 1);       //strafe right
+            drive.driveMaintainYaw(-2, 0.8, -45, 1);
         }   //don't need else, since you'll be at desired column
         sleep(500);
-        belt.unclipBlock();
-        belt.gateGranted();
         drive.driveMaintainYaw(7.5, -0.4, 0, 1);
         sleep(500);
-        belt.spitBlock();
-        sleep(3000);
-        belt.stopSpitting();
         drive.driveMaintainYaw(2, 0.4, 0, 1);
         /*
         belt.requestGate();

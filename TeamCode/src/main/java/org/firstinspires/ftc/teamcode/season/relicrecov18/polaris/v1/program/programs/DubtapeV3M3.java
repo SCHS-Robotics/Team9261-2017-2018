@@ -137,7 +137,7 @@ public class DubtapeV3M3 extends LinearOpMode implements CameraBridgeViewBase.Cv
             Core.bitwise_and(blue,greenChannel,blue);
 */
             //Create the two new processing threads
-            BallDetector processRed = new BallDetector(red, redChannel, 0.8, prevRedCircle);
+            BallDetector processRed = new BallDetector(red, redChannel, 0.7, prevRedCircle);
             BallDetector processBlue = new BallDetector(blue, z, 0.7, prevBlueCircle);
 
             //Register the threads with the executor service

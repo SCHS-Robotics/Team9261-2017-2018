@@ -5,11 +5,12 @@ apply plugin: 'com.android.library'
 android {
 
     defaultConfig {
-        minSdkVersion 22
-        targetSdkVersion 23
+        minSdkVersion 19
+        targetSdkVersion 19
     }
 
     compileSdkVersion 23
+    buildToolsVersion '26.0.2'
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_7
@@ -24,6 +25,5 @@ repositories {
 apply from: 'build.release.gradle'
 
 dependencies {
-    implementation project(':openCVLibrary331')
-    compile project(path: ':openCVLibrary331')
+    implementation project(':openCVLibrary340')
 }

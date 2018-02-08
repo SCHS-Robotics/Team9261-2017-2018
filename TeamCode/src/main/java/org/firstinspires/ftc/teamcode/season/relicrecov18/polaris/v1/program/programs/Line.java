@@ -1,8 +1,10 @@
 package org.firstinspires.ftc.teamcode.season.relicrecov18.polaris.v1.program.programs;
 
+import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.Point;
 import org.opencv.core.Scalar;
+import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 
 public class Line {
@@ -63,11 +65,15 @@ public class Line {
 
     public void draw(Mat input) {
         if(!this.isVertical) {
-            Imgproc.line(input,new Point(0,this.b), new Point(640,this.calc(640)),new Scalar(0,255,0),1);
+            Imgproc.line(input,new Point(0,this.b), new Point(1280,this.calc(1280)),new Scalar(0,255,0),1);
         }
         else {
             Imgproc.line(input,new Point(this.xCoord,0), new Point(this.xCoord,640), new Scalar(0,255,0),1
             );
         }
+    }
+    public void drawLabeled(Mat input, String label) {
+        draw(input);
+        Imgproc.putText(input,label,new Point(Math.floor((start.x+end.x)/2),Math.floor((start.y+end.y)/2)-5), Core.FONT_HERSHEY_COMPLEX,1,new Scalar(0,255,0),1);
     }
 }
