@@ -28,24 +28,25 @@ public class Jewel extends SubSystem {
     }
 
     public enum armPos{
-        LEFT(1), MIDDLE(.28), RIGHT(0), RETURN(0.2);
+        LEFT(0.5), MIDDLE(0.2), RIGHT(0), RETURN(0.2);
         public double pos;
         armPos(double pos){
             this.pos = pos;
         }
     }
     public enum axePos{
-        DOWN(0.1), UP(0.6), UPPERMID(0.4), LOWERMID(0.25);
+        DOWN(0.05), UP(0.7), UPPERMID(0.3), LOWERMID(0.25);
         public double ap;
         axePos(double ap){ this.ap = ap;}
     }
     @Override
     public void handle() {
-
+        if(robot.gamepad1.x){
+            moveArm(armPos.MIDDLE);
+            moveAxe(axePos.UP);
+        }
     }
-    public void moveArm(armPos position){
-        jewelCR.setPosition(position.pos);
-    }
+    public void moveArm(armPos position){jewelCR.setPosition(position.pos);}
     public void moveAxe(axePos position){ axe.setPosition(position.ap);}
 
     /*public boolean isRed(){

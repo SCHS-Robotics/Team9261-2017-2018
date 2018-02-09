@@ -141,6 +141,7 @@ public class FtcRobotControllerActivity extends Activity
     public String getTag() { return TAG; }
 
     public static CascadeClassifier face_cascade;
+    public static CascadeClassifier hex_cascade;
     public static Mat pictographTemplate;
   private static final int REQUEST_CONFIG_WIFI_CHANNEL = 1;
   private static final int NUM_GAMEPADS = 2;
@@ -693,7 +694,7 @@ public class FtcRobotControllerActivity extends Activity
   private void loadCascade() {
 
     try {
-      InputStream is = getResources().openRawResource(R.raw.jewelcascade);
+      InputStream is = getResources().openRawResource(R.raw.jewelcascadehighdata);
       File cascadeDir = getDir("cascade", Context.MODE_PRIVATE);
       File mCascadeFile = new File(cascadeDir, "cascade");
       FileOutputStream os = new FileOutputStream(mCascadeFile);
@@ -714,7 +715,29 @@ public class FtcRobotControllerActivity extends Activity
     } catch (IOException e) {
       e.printStackTrace();
       Log.v("MyActivity", "Failed to load cascade. Exception thrown: " + e);
-
+    }
+    try {
+    InputStream is2 = getResources().openRawResource(R.raw.hexagoncascade2);
+    File cascadeDir2 = getDir("cascade", Context.MODE_PRIVATE);
+    File mCascadeFile2 = new File(cascadeDir2, "cascade");
+    FileOutputStream os2 = new FileOutputStream(mCascadeFile2);
+    byte[] buffer2 = new byte[4096];
+    int bytesRead2;
+    while ((bytesRead2 = is2.read(buffer2)) != -1) {
+      os2.write(buffer2, 0, bytesRead2);
+    }
+    is2.close();
+    os2.close();
+    hex_cascade = new CascadeClassifier(mCascadeFile2.getAbsolutePath());
+    if (hex_cascade.empty()) {
+      Log.v("MyActivity", "--(!) Error loading A\n");
+      return;
+    } else {
+      Log.v("MyActivity", "Loaded cascade classifier from " + mCascadeFile2.getAbsolutePath());
+    }
+  } catch (IOException e) {
+      e.printStackTrace();
+      Log.v("MyActivity", "Failed to load cascade. Exception thrown: " + e);
     }
     try {
       pictographTemplate = Utils.loadResource(context,R.drawable.left,0);

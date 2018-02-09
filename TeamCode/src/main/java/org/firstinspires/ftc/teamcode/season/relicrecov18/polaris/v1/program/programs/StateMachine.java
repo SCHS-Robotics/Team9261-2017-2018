@@ -22,6 +22,7 @@ public abstract class StateMachine extends PolarisAutonomousProgram {
         JewelBlue, JewelRed, DrivingoffStone, AligningCryptobox, DispensingBlocks, CollectingBlocks;
     }
     public void setCurrentState(currentState state) throws InterruptedException{
+        /*
         switch(state){
             case JewelBlue:
                 jewelDetector.stopOpenCV();
@@ -94,7 +95,7 @@ public abstract class StateMachine extends PolarisAutonomousProgram {
                 }else if(navi.key == RelicRecoveryVuMark.RIGHT){
                     drive.strafeMaintainYaw(6, .5, 0, 1);
                 }*/
-                belt.unclipBlock();
+                /*belt.unclipBlock();
                 drive.driveMaintainYaw(5, -0.2, 0, 1);
                 sleep(500);
                 break;
@@ -113,6 +114,6 @@ public abstract class StateMachine extends PolarisAutonomousProgram {
                 belt.clipBlock();
                 break;
 
-        }
+        }*/
     }
 }

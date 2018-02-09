@@ -51,7 +51,7 @@ public class PictographDetectorV2 extends LinearOpMode implements CameraBridgeVi
     @Override
     public void onCameraViewStarted(int width, int height) {
         templateImage = FtcRobotControllerActivity.pictographTemplate;
-        hex = FtcRobotControllerActivity.face_cascade;
+        hex = FtcRobotControllerActivity.hex_cascade;
     }
 
     @Override
@@ -95,29 +95,8 @@ public class PictographDetectorV2 extends LinearOpMode implements CameraBridgeVi
                 Imgproc.approxPolyDP(new MatOfPoint2f(c.toArray()), approx, 0.01 * Imgproc.arcLength(new MatOfPoint2f(c.toArray()), true), true);
                 if (approx.toList().size() == 8) {
                     double area = Imgproc.contourArea(new MatOfPoint(approx.toArray()));
-                    if (area > 3000) {
+                    if (area > 10000) {
                         goodContours.add(new MatOfPoint(approx.toArray()));
-                        /*
-                        warped = new Mat();
-                        List<MatOfPoint> approxList = new ArrayList<>();
-                        approxList.add(new MatOfPoint(approx.toArray()));
-
-                        Imgproc.drawContours(output, approxList, 0, new Scalar(255, 0, 0), 5);
-
-                        Mat corners = getCorners(approxList.get(0), output);
-                        Mat templateCorners = getTemplateCorners(templateImage);
-
-                        Size boxSize = getCornersSize(templateCorners);
-
-                        Mat perspectiveMatrix = Imgproc.getPerspectiveTransform(corners,templateCorners);
-                        Imgproc.warpPerspective(raw,warped,perspectiveMatrix,boxSize);
-                        hexCount(warped,warped);
-                        images.add(warped);
-                        i++;
-                        telemetry.addData("is Empty?", images.size() == 0);
-                        telemetry.addData("how many times I ran", i);
-                        telemetry.update();
-                        */
                     }
                 }
             }
@@ -125,10 +104,10 @@ public class PictographDetectorV2 extends LinearOpMode implements CameraBridgeVi
                 @Override
                 public int compare(MatOfPoint lhs, MatOfPoint rhs) {
                     if(Imgproc.contourArea(lhs) > Imgproc.contourArea(rhs)) {
-                        return -1;
+                        return 1;
                     }
                     else if(Imgproc.contourArea(lhs) < Imgproc.contourArea(rhs)) {
-                        return 1;
+                        return -1;
                     }
                     else {
                         return 0;
@@ -154,7 +133,7 @@ public class PictographDetectorV2 extends LinearOpMode implements CameraBridgeVi
             cropped = warped.submat(new Rect(0,0,(int) Math.round(boxSize.width/2),(int) Math.round(boxSize.height)));
             //cropped = new Mat(warped,new Rect(0,0,(int) Math.round(boxSize.width/2),(int) Math.round(boxSize.height)));
 
-            hexCount(cropped,cropped);
+            telemetry.addData("hexes",hexCount(cropped,cropped));
             //telemetry.addData("is Empty?", images.size() == 0);
             telemetry.addData("how many times I ran", i);
             telemetry.update();
@@ -233,15 +212,67 @@ public class PictographDetectorV2 extends LinearOpMode implements CameraBridgeVi
             }
         });
 
+        List<Line> importantLines = new ArrayList<>();
+
         for(Line l : lines.subList(0,4)) {
             if(!importantPts.contains(l.start)) {
                 importantPts.add(l.start);
+                Imgproc.circle(draw,l.start,7,new Scalar(0,0,0),-1);
             }
             if(!importantPts.contains(l.end)) {
                 importantPts.add(l.end);
+                Imgproc.circle(draw,l.end,7,new Scalar(0,0,0),-1);
             }
         }
+        importantLines = lines.subList(0,4);
 
+        Collections.sort(importantLines, new Comparator<Line>() {
+            @Override
+            public int compare(Line lhs, Line rhs) {
+                return (int) Math.round(Math.abs(lhs.m) - Math.abs(rhs.m));
+            }
+        });
+
+        List<Line> topBottom = new ArrayList<>();
+        List<Line> leftRight = new ArrayList<>();
+
+        telemetry.addData("1",importantLines.get(0).m);
+        telemetry.addData("2",importantLines.get(1).m);
+        telemetry.addData("3",importantLines.get(2).m);
+        telemetry.addData("4",importantLines.get(3).m);
+
+        topBottom.add(importantLines.get(0));
+        topBottom.add(importantLines.get(1));
+
+        leftRight.add(importantLines.get(2));
+        leftRight.add(importantLines.get(3));
+
+        Collections.sort(leftRight, new Comparator<Line>() {
+            @Override
+            public int compare(Line lhs, Line rhs) {
+                return (int) Math.round(rhs.start.x-lhs.start.x);
+            }
+        });
+
+        Line left = leftRight.get(1);
+        Line right = leftRight.get(0);
+
+        Collections.sort(topBottom, new Comparator<Line>() {
+            @Override
+            public int compare(Line lhs, Line rhs) {
+                return (int) Math.round(rhs.start.y-lhs.start.y);
+            }
+        });
+
+        Line top = topBottom.get(1);
+        Line bottom = topBottom.get(0);
+
+        bottom.drawLabeled(draw, "bottom");
+        top.drawLabeled(draw,"top");
+        left.drawLabeled(draw, "left");
+        right.drawLabeled(draw, "right");
+
+        /*
         Collections.sort(importantPts, new Comparator<Point>() {
             @Override
             public int compare(Point o1, Point o2) {
@@ -277,7 +308,7 @@ public class PictographDetectorV2 extends LinearOpMode implements CameraBridgeVi
 
         Line left = new Line(importantPts.get(0),importantPts.get(1));
         Line right = new Line(importantPts.get(importantPts.size()-2),importantPts.get(importantPts.size()-1));
-
+*/
         Point topLeft = top.getIntersectWith(left);
         Point topRight = top.getIntersectWith(right);
         Point bottomLeft = bottom.getIntersectWith(left);
@@ -289,12 +320,12 @@ public class PictographDetectorV2 extends LinearOpMode implements CameraBridgeVi
         output.put(1,0, new double[] {(float) topRight.x,(float) topRight.y});
         output.put(2,0, new double[] {(float) bottomRight.x,(float) bottomRight.y});
         output.put(3,0, new double[] {(float) bottomLeft.x,(float) bottomLeft.y});
-
+/*
         Imgproc.line(draw,topLeft,topRight,new Scalar(0,255,0),5);
         Imgproc.line(draw,topLeft,bottomLeft,new Scalar(0,255,0),5);
         Imgproc.line(draw,bottomLeft,bottomRight,new Scalar(0,255,0),5);
         Imgproc.line(draw,bottomRight,topRight,new Scalar(0,255,0),5);
-
+*/
         return output;
     }
 
@@ -310,9 +341,11 @@ public class PictographDetectorV2 extends LinearOpMode implements CameraBridgeVi
 
     public int hexCount(Mat input, Mat draw) {
         MatOfRect boxes = new MatOfRect();
-        hex.detectMultiScale(input,boxes);
+        int hexes = 0;
+        hex.detectMultiScale(input,boxes,1.1,5,0,new Size(),new Size());
         for(Rect box: boxes.toArray()) {
             Imgproc.rectangle(draw,new Point(box.x,box.y), new Point(box.x+box.width,box.y+box.height),new Scalar(0,0,0),5);
+            hexes++; //Adds more curses to enemy teams
         }
         /*
         ArrayList<MatOfPoint> contours = new ArrayList<>();
@@ -332,8 +365,7 @@ public class PictographDetectorV2 extends LinearOpMode implements CameraBridgeVi
                 Imgproc.drawContours(draw,approxList,0,new Scalar(255,0,0),5);
             }
         }*/
-        return 0;
-
+        return hexes;
     }
 
     //Starts Opencv by sending a start message to FtcRobotControllerActivity

@@ -30,7 +30,7 @@ public class AutonomousBlueFar extends PolarisAutonomousProgram {
     }
     @Override
     public void main() throws InterruptedException {
-        AutoTransitioner.transitionOnStop(this, "Competition TeleOp");
+        /*AutoTransitioner.transitionOnStop(this, "Competition TeleOp");
         while(!drive.imu.isGyroCalibrated() && !isStarted() && !isStopRequested()){
             sleep(50);
         }
@@ -102,5 +102,6 @@ public class AutonomousBlueFar extends PolarisAutonomousProgram {
         sleep(3000);
         belt.stopSpitting();
         drive.driveMaintainYaw(2, 0.4, -90, 1);
+        */
     }
 }

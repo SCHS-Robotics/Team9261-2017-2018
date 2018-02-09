@@ -27,7 +27,6 @@ import java.util.concurrent.Future;
  */
 @Autonomous(name = "Red Calibration", group = "meme")
 public class RedCalibration extends LinearOpMode implements CameraBridgeViewBase.CvCameraViewListener2 {
-    int i = 120;
     @Override
     public void runOpMode() {
 
@@ -55,35 +54,11 @@ public class RedCalibration extends LinearOpMode implements CameraBridgeViewBase
     public Mat onCameraFrame(CameraBridgeViewBase.CvCameraViewFrame rawFrame) {
         Mat raw = rawFrame.rgba();
         Mat hsv = new Mat();
-        Mat lowerRedRange = new Mat();
-        Mat upperRedRange = new Mat();
-        Mat blue = new Mat();
-        Mat g = new Mat();
-        Mat red2 = new Mat();
-        List<Mat> channels = new ArrayList<>();
+        Mat green = new Mat();
         try {
-            Imgproc.resize(raw,raw,new Size(320,180));
-            Mat b= new Mat();
-            Imgproc.cvtColor(raw, b, Imgproc.COLOR_RGB2YUV);
-            Imgproc.GaussianBlur(b,b,new Size(3,3),0);
-            Core.split(b, channels);
-            Imgproc.threshold(channels.get(1), blue, 145, 255, Imgproc.THRESH_BINARY);
-            telemetry.addData("t1",blue.type());
-            channels.clear();
-            Core.split(raw,channels);
-            Imgproc.threshold(channels.get(2), channels.get(2),140,255,Imgproc.THRESH_BINARY);
-            Imgproc.cvtColor(raw, hsv, Imgproc.COLOR_RGBA2RGB);
-            Imgproc.cvtColor(hsv, hsv, Imgproc.COLOR_RGB2HSV);
-
-            telemetry.addData("i",i);
-
-            Core.inRange(hsv, new Scalar(40,100,55), new Scalar(120,255,255), red2);
-
-            telemetry.addData("t2",red2.type());
-            Core.bitwise_and(blue,red2,blue);
-            Core.bitwise_and(blue,channels.get(2),blue);
-
-            i++;
+            Imgproc.cvtColor(raw, raw, Imgproc.COLOR_RGBA2RGB);
+            Imgproc.cvtColor(raw, hsv, Imgproc.COLOR_RGB2HSV);
+            Core.inRange(hsv, new Scalar(40,100,60), new Scalar(65,100,100), green);
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -92,7 +67,7 @@ public class RedCalibration extends LinearOpMode implements CameraBridgeViewBase
         telemetry.update();
 
         //Resize the image so the camera can display it and return the result
-        Mat returnImage = blue;
+        Mat returnImage = green;
         Imgproc.resize(returnImage, returnImage, new Size(1280, 720));
         return returnImage;
     }

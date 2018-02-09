@@ -23,7 +23,7 @@ public class AutonomousRedFar extends PolarisAutonomousProgram {
 
         @Override
         public void main() throws InterruptedException {
-            AutoTransitioner.transitionOnStop(this, "Competition TeleOp");
+            /*AutoTransitioner.transitionOnStop(this, "Competition TeleOp");
             while(!drive.imu.isGyroCalibrated() && !isStarted() && !isStopRequested()){
                 sleep(50);
             }
@@ -78,7 +78,7 @@ public class AutonomousRedFar extends PolarisAutonomousProgram {
             belt.stopSpitting();
             belt.clipBlock();
             //drive.driveoffBalancingStone();*/
-            drive.driveMaintainYaw(28, 0.6, 0, 1);
+            /*drive.driveMaintainYaw(28, 0.6, 0, 1);
             drive.turnExact(0.2, 45, 1);
             drive.driveMaintainYaw(24, -0.8, 45, 1 );
             drive.turnExact(0.2, 90, 1);
@@ -95,5 +95,6 @@ public class AutonomousRedFar extends PolarisAutonomousProgram {
             sleep(3000);
             belt.stopSpitting();
             drive.driveMaintainYaw(2, 0.4, 90, 1);
+            */
     }
 }

@@ -71,9 +71,6 @@ public class GyroTestRed extends PolarisAutonomousProgram implements CameraBridg
        // drive.turnExact(90, 0.2);
         sleep(1000);
         drive.driveDistance(1.5,0.8);
-        belt.spitBlock();
-        sleep(2000);
-        belt.stopSpitting();
         drive.driveDistance(3, 0.8);
         sleep(2000);
         drive.driveDistance(3,-0.8);

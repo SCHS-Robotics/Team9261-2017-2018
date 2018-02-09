@@ -10,9 +10,14 @@
 // Custom definitions may go here
 // Include common definitions from above.
 apply from: '../build.common.gradle'
+apply plugin: 'kotlin-android'
 android {
     buildToolsVersion '26.0.2'
 }
 dependencies {
-    implementation project(':openCVLibrary331')
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
+    implementation project(':openCVLibrary340')
+}
+repositories {
+    mavenCentral()
 }
