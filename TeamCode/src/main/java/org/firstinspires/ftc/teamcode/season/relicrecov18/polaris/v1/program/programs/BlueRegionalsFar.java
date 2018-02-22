@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.season.relicrecov18.polaris.v1.program.programs;
 
+import android.media.MediaPlayer;
+
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.firstinspires.ftc.robotcontroller.internal.FtcRobotControllerActivity;
@@ -32,14 +34,12 @@ import java.util.List;
 /**
  * Created by andre_000 on 01/27/2018.
  */
-@Autonomous(name = "Red Regionals Center", group = "Regionals")
-public class RedRegionalsCenter extends PolarisAutonomousProgram implements CameraBridgeViewBase.CvCameraViewListener2 {
+@Autonomous(name = "Blue Regionals Far", group = "Regionals")
+public class BlueRegionalsFar extends PolarisAutonomousProgram implements CameraBridgeViewBase.CvCameraViewListener2 {
     private String direction;
-
     Mat templateImage;
     CascadeClassifier hex;
     CLAHE clahe;
-
     private RelicRecoveryVuMark key = RelicRecoveryVuMark.UNKNOWN;  //note: test calling navi.key and randomizing b4 next tournament
 
     //private final ExecutorService service = Executors.newFixedThreadPool(2); //The executor service that will run the two processing threads simultaneously
@@ -106,21 +106,21 @@ public class RedRegionalsCenter extends PolarisAutonomousProgram implements Came
         jewel.moveAxe(Jewel.axePos.DOWN);
         sleep(250);
         if(jewelDetector.direction == "left") {
-            drive.turnExact(0.15, 8, 1);
+            drive.turnExact(0.15, -8, 1);
             jewel.moveAxe(Jewel.axePos.UP);
             sleep(500);
             drive.turnExact(0.15, 0, 1);
         }
         else if(jewelDetector.direction == "right") {
             //drive.driveMaintainYaw(2, -0.8, 0, 1);
-            drive.turnExact(0.15, -8, 1);
+            drive.turnExact(0.15, 8, 1);
             jewel.moveAxe(Jewel.axePos.UP);
             sleep(500);
             drive.turnExact(0.15, 0, 1);
         }
         startOpenCV(this);
-        drive.driveMaintainYaw(12, 0.2, 0, 1);
-        sleep(1250);
+        drive.turnExact(0.15, 15, 1);
+        sleep(1500);
         long i = System.currentTimeMillis();
         while (key == RelicRecoveryVuMark.UNKNOWN && System.currentTimeMillis()-i < 3000) {
             telemetry.addData("key", key);
@@ -128,115 +128,110 @@ public class RedRegionalsCenter extends PolarisAutonomousProgram implements Came
         }
         RelicRecoveryVuMark latestKey = key;
         stopOpenCV();
+        drive.turnExact(0.15, 0, 1);
         telemetry.addData("key", key);
         telemetry.update();
+        drive.driveMaintainYaw(22, -0.8, 0, 1);
         if (latestKey == RelicRecoveryVuMark.LEFT) {
             telemetry.addData("key", key);
             telemetry.update();
-            drive.driveMaintainYaw(23, 0.8, 0, 1);
-            drive.turnPID(0.2, 90, 1);
-            drive.turnExact(0.2, 90, 1);
-            drive.driveMaintainYaw(2, -0.6, 90, 1);
+            drive.strafeMaintainYaw(3, -0.4, 0, 1);
             flippyBoii.dispense();
             intake.reverseintake();
             sleep(500);
-            drive.driveMaintainYaw(5, -0.4, 90, 1);
-            drive.driveMaintainYaw(5, 0.4, 90, 1);
-            drive.driveMaintainYaw(5, -0.4, 90, 1);
-            drive.driveMaintainYaw(5, 0.4, 90, 1);
+            drive.driveMaintainYaw(6, -0.4, 0, 1);
+            drive.driveMaintainYaw(6, 0.4, 0, 1);
+            drive.driveMaintainYaw(6, -0.4, 0, 1);
+            drive.driveMaintainYaw(6, 0.4, 0, 1);
             flippyBoii.stopDispense();
             intake.stopIntake();
+            drive.strafeMaintainYaw(20, -0.4, 0, 1);
         } else if (latestKey == RelicRecoveryVuMark.CENTER) {
             telemetry.addData("key", key);
             telemetry.update();
-            drive.driveMaintainYaw(16, 0.8, 0,1);
-            drive.turnPID(0.2, 90, 1);
-            drive.turnExact(0.2, 90, 1);
-            drive.driveMaintainYaw(2, -0.8, 90, 1);
+            drive.strafeMaintainYaw(14, -0.4, 0, 1);
             flippyBoii.dispense();
             intake.reverseintake();
             sleep(500);
-            drive.driveMaintainYaw(5, -0.4, 90, 1);
-            drive.driveMaintainYaw(5, 0.4, 90, 1);
-            drive.driveMaintainYaw(5, -0.4, 90, 1);
-            drive.driveMaintainYaw(5, 0.4, 90, 1);
+            drive.driveMaintainYaw(6, -0.4, 0, 1);
+            drive.driveMaintainYaw(6, 0.4, 0, 1);
+            drive.driveMaintainYaw(6, -0.4, 0, 1);
+            drive.driveMaintainYaw(6, 0.4, 0, 1);
             flippyBoii.stopDispense();
+            drive.strafeMaintainYaw(10, -0.4, 0, 1);
         } else if (latestKey == RelicRecoveryVuMark.RIGHT) {
             telemetry.addData("key", key);
             telemetry.update();
-            drive.driveMaintainYaw(8, 0.8, 0, 1);
-            drive.turnPID(0.2, 90, 1);
-            drive.turnExact(0.2, 90, 1);
-            drive.driveMaintainYaw(2, -0.8, 90, 1);
+            drive.strafeMaintainYaw(23, -0.4, 0, 1);
             flippyBoii.dispense();
             intake.reverseintake();
             sleep(500);
-            drive.driveMaintainYaw(5, -0.4, 90, 1);
-            drive.driveMaintainYaw(5, 0.4, 90, 1);
-            drive.driveMaintainYaw(5, -0.4, 90, 1);
-            drive.driveMaintainYaw(5, 0.4, 90, 1);
+            drive.driveMaintainYaw(6, -0.4, 0, 1);
+            drive.driveMaintainYaw(6, 0.4, 0, 1);
+            drive.driveMaintainYaw(6, -0.4, 0, 1);
+            drive.driveMaintainYaw(6, 0.4, 0, 1);
             flippyBoii.stopDispense();
         } else {
             telemetry.addData("key", key);
             telemetry.update();
-            drive.driveMaintainYaw(16, 0.8, 0, 1);
-            drive.turnPID(0.2, 90, 1);
-            drive.turnExact(0.2, 90, 1);
-            drive.driveMaintainYaw(2, -0.8, 90, 1);
+            drive.strafeMaintainYaw(11, -0.4, 0, 1);
             flippyBoii.dispense();
             intake.reverseintake();
             sleep(500);
-            drive.driveMaintainYaw(5, -0.4, 90, 1);
-            drive.driveMaintainYaw(5, 0.4, 90, 1);
-            drive.driveMaintainYaw(5, -0.4, 90, 1);
-            drive.driveMaintainYaw(5, 0.4, 90, 1);
+            drive.driveMaintainYaw(6, -0.4, 0, 1);
+            drive.driveMaintainYaw(6, 0.4, 0, 1);
+            drive.driveMaintainYaw(6, -0.4, 0, 1);
+            drive.driveMaintainYaw(6, 0.4, 0, 1);
             flippyBoii.stopDispense();
+            drive.strafeMaintainYaw(10, -0.4, 0, 1);
         }
-        drive.driveMaintainYaw(18, 0.6, 90, 1);
+        drive.turnPID(0.2, 20, 1);
+        drive.turnExact(0.2, 20, 1);
+        drive.driveMaintainYaw(18, 0.6, 20, 1);
         pulseIntake.start();
-        drive.driveMaintainYaw(2, 0.4, 90, 1);
-        drive.turnPID(0.2, 80, 1);
-        drive.turnPID(0.2, 90, 1);
-        drive.driveMaintainYaw(2, 0.4, 90, 1);
+        drive.driveMaintainYaw(16, 0.4, 20, 1);
+        drive.turnPID(0.2, 30, 1);
+        drive.turnPID(0.2, 20, 1);
+        drive.driveMaintainYaw(2, 0.4, 20, 1);
         sleep(1250);
-        drive.driveMaintainYaw(27, -0.8, 90, 1);
+        //drive.strafeMaintainYaw(3.5, 0.4, 90, 1);
+        drive.driveMaintainYaw(40, -0.8, 20, 1);
         intake.stopIntake();
-        drive.driveMaintainYaw(3.25, 0.2, 90, 1);
+        drive.turnPID(0.2, 0, 1);
+        drive.turnExact(0.2, 0, 1);
+        drive.driveMaintainYaw(3.25, 0.3, 0, 1);
         if (latestKey == RelicRecoveryVuMark.LEFT) {
-            drive.strafeMaintainYaw(10, -0.4, 90, 1);
             flippyBoii.dispense();
             intake.reverseintake();
-            drive.driveMaintainYaw(5, -0.4, 90, 1);
-            drive.driveMaintainYaw(3, 0.4, 90, 1);
+            drive.driveMaintainYaw(5, -0.4, 0, 1);
+            drive.driveMaintainYaw(3, 0.4, 0, 1);
             flippyBoii.stopDispense();
             intake.stopIntake();
         } else if (latestKey == RelicRecoveryVuMark.CENTER) {
-            drive.strafeMaintainYaw(10, 0.4, 90, 1);
             flippyBoii.dispense();
             intake.reverseintake();
-            drive.driveMaintainYaw(5, -0.4, 90, 1);
-            drive.driveMaintainYaw(3, 0.4, 90, 1);
+            drive.driveMaintainYaw(5, -0.4, 0, 1);
+            drive.driveMaintainYaw(3, 0.4, 0, 1);
             flippyBoii.stopDispense();
             intake.stopIntake();
         } else if (latestKey == RelicRecoveryVuMark.RIGHT) {
-            drive.strafeMaintainYaw(10, 0.4, 90, 1);
+            drive.strafeMaintainYaw(10.5, 0.4, 0, 1);
             flippyBoii.dispense();
             intake.reverseintake();
-            drive.driveMaintainYaw(5, -0.4, 90, 1);
-            drive.driveMaintainYaw(3, 0.4, 90, 1);
+            drive.driveMaintainYaw(5, -0.4, 0, 1);
+            drive.driveMaintainYaw(3, 0.4, 0, 1);
             flippyBoii.stopDispense();
             intake.stopIntake();
         } else {
-            drive.strafeMaintainYaw(10, 0.4, 90, 1);
             flippyBoii.dispense();
             intake.reverseintake();
-            drive.driveMaintainYaw(5, -0.4, 90, 1);
-            drive.driveMaintainYaw(3, 0.4, 90, 1);
+            drive.driveMaintainYaw(5, -0.4, 0, 1);
+            drive.driveMaintainYaw(3, 0.4, 0, 1);
             flippyBoii.stopDispense();
             intake.stopIntake();
         }
-        drive.driveMaintainYaw(5, -0.8, 90, 1);
-        drive.driveMaintainYaw(3.25,0.2,90,1);
+        drive.driveMaintainYaw(5, -0.4, 0, 1);
+        drive.driveMaintainYaw(3,0.4,0,1);
         stopOpenCV();
     }
 

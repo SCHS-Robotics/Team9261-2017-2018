@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.season.relicrecov18.polaris.v1.program.programs;
 
+import android.media.MediaPlayer;
+
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.firstinspires.ftc.robotcontroller.internal.FtcRobotControllerActivity;
@@ -32,14 +34,12 @@ import java.util.List;
 /**
  * Created by andre_000 on 01/27/2018.
  */
-@Autonomous(name = "Blue Regionals Center", group = "test")
+@Autonomous(name = "Blue Regionals Center", group = "Regionals")
 public class BlueRegionalsCenter extends PolarisAutonomousProgram implements CameraBridgeViewBase.CvCameraViewListener2 {
     private String direction;
-
     Mat templateImage;
     CascadeClassifier hex;
     CLAHE clahe;
-
     private RelicRecoveryVuMark key = RelicRecoveryVuMark.UNKNOWN;  //note: test calling navi.key and randomizing b4 next tournament
 
     //private final ExecutorService service = Executors.newFixedThreadPool(2); //The executor service that will run the two processing threads simultaneously
@@ -100,6 +100,7 @@ public class BlueRegionalsCenter extends PolarisAutonomousProgram implements Cam
         startOpenCV(jewelDetector);
         waitForStart();
         stopOpenCV();
+        drive.kirby.start();
         jewel.moveAxe(Jewel.axePos.UPPERMID);
         sleep(500);
         jewel.moveAxe(Jewel.axePos.DOWN);
@@ -119,6 +120,7 @@ public class BlueRegionalsCenter extends PolarisAutonomousProgram implements Cam
         }
         startOpenCV(this);
         drive.turnExact(0.15, 15, 1);
+        sleep(1500);
         long i = System.currentTimeMillis();
         while (key == RelicRecoveryVuMark.UNKNOWN && System.currentTimeMillis()-i < 3000) {
             telemetry.addData("key", key);
@@ -132,8 +134,9 @@ public class BlueRegionalsCenter extends PolarisAutonomousProgram implements Cam
         if (latestKey == RelicRecoveryVuMark.LEFT) {
             telemetry.addData("key", key);
             telemetry.update();
-            drive.driveMaintainYaw(20.5, -0.8, 0, 1);
+            drive.driveMaintainYaw(22.5, -0.8, 0, 1);
             drive.turnPID(0.2, 90, 1);
+            drive.turnExact(0.2, 90, 1);
             drive.driveMaintainYaw(2, -0.6, 90, 1);
             flippyBoii.dispense();
             intake.reverseintake();
@@ -147,8 +150,9 @@ public class BlueRegionalsCenter extends PolarisAutonomousProgram implements Cam
         } else if (latestKey == RelicRecoveryVuMark.CENTER) {
             telemetry.addData("key", key);
             telemetry.update();
-            drive.driveMaintainYaw(28.5, -0.8, 0,1);
+            drive.driveMaintainYaw(32, -0.8, 0,1);
             drive.turnPID(0.2, 90, 1);
+            drive.turnExact(0.2, 90, 1);
             drive.driveMaintainYaw(2, -0.8, 90, 1);
             flippyBoii.dispense();
             intake.reverseintake();
@@ -161,8 +165,9 @@ public class BlueRegionalsCenter extends PolarisAutonomousProgram implements Cam
         } else if (latestKey == RelicRecoveryVuMark.RIGHT) {
             telemetry.addData("key", key);
             telemetry.update();
-            drive.driveMaintainYaw(36.5, -0.8, 0, 1);
+            drive.driveMaintainYaw(40, -0.8, 0, 1);
             drive.turnPID(0.2, 90, 1);
+            drive.turnExact(0.2, 90, 1);
             drive.driveMaintainYaw(2, -0.8, 90, 1);
             flippyBoii.dispense();
             intake.reverseintake();
@@ -175,8 +180,9 @@ public class BlueRegionalsCenter extends PolarisAutonomousProgram implements Cam
         } else {
             telemetry.addData("key", key);
             telemetry.update();
-            drive.driveMaintainYaw(28.5, -0.8, 0, 1);
+            drive.driveMaintainYaw(32, -0.8, 0, 1);
             drive.turnPID(0.2, 90, 1);
+            drive.turnExact(0.2, 90, 1);
             drive.driveMaintainYaw(2, -0.8, 90, 1);
             flippyBoii.dispense();
             intake.reverseintake();
@@ -197,9 +203,9 @@ public class BlueRegionalsCenter extends PolarisAutonomousProgram implements Cam
         //drive.strafeMaintainYaw(3.5, 0.4, 90, 1);
         drive.driveMaintainYaw(27, -0.8, 90, 1);
         intake.stopIntake();
-        drive.driveMaintainYaw(3, 0.8, 90, 1);
+        drive.driveMaintainYaw(3.25, 0.3, 90, 1);
         if (latestKey == RelicRecoveryVuMark.LEFT) {
-            drive.strafeMaintainYaw(6, -0.8, 90, 1);
+            drive.strafeMaintainYaw(10, -0.4, 90, 1);
             flippyBoii.dispense();
             intake.reverseintake();
             drive.driveMaintainYaw(5, -0.4, 90, 1);
@@ -207,7 +213,7 @@ public class BlueRegionalsCenter extends PolarisAutonomousProgram implements Cam
             flippyBoii.stopDispense();
             intake.stopIntake();
         } else if (latestKey == RelicRecoveryVuMark.CENTER) {
-            drive.strafeMaintainYaw(6, -0.8, 90, 1);
+            drive.strafeMaintainYaw(9, -0.4, 90, 1);
             flippyBoii.dispense();
             intake.reverseintake();
             drive.driveMaintainYaw(5, -0.4, 90, 1);
@@ -215,7 +221,7 @@ public class BlueRegionalsCenter extends PolarisAutonomousProgram implements Cam
             flippyBoii.stopDispense();
             intake.stopIntake();
         } else if (latestKey == RelicRecoveryVuMark.RIGHT) {
-            drive.strafeMaintainYaw(6, 0.8, 90, 1);
+            drive.strafeMaintainYaw(10.5, 0.4, 90, 1);
             flippyBoii.dispense();
             intake.reverseintake();
             drive.driveMaintainYaw(5, -0.4, 90, 1);
@@ -223,7 +229,7 @@ public class BlueRegionalsCenter extends PolarisAutonomousProgram implements Cam
             flippyBoii.stopDispense();
             intake.stopIntake();
         } else {
-            drive.strafeMaintainYaw(6, -0.8, 90, 1);
+            drive.strafeMaintainYaw(9, -0.4, 90, 1);
             flippyBoii.dispense();
             intake.reverseintake();
             drive.driveMaintainYaw(5, -0.4, 90, 1);
@@ -231,8 +237,8 @@ public class BlueRegionalsCenter extends PolarisAutonomousProgram implements Cam
             flippyBoii.stopDispense();
             intake.stopIntake();
         }
-        drive.driveMaintainYaw(5, -0.8, 90, 1);
-        drive.driveMaintainYaw(2.5,0.4,90,1);
+        drive.driveMaintainYaw(5, -0.4, 90, 1);
+        drive.driveMaintainYaw(3,0.4,90,1);
         stopOpenCV();
     }
 
