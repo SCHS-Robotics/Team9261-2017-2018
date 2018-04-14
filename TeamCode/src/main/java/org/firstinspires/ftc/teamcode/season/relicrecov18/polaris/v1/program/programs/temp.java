@@ -214,9 +214,7 @@ public class PictographDetectorV2 extends LinearOpMode implements CameraBridgeVi
         List<List<Line>> opposites = new ArrayList<>();
         List<Line> used = new ArrayList<>();
         for(Line line: lines) {
-            
             for(Line nextLine: lines) {
-
                 double angle = Math.toDegrees(Math.atan((line.m - nextLine.m) / (1 + line.m * nextLine.m)));
                 if(Double.isNaN(angle)) {
                     angle = Double.isInfinite(line.m) ? 90 - Math.abs(Math.toDegrees(Math.atan(nextLine.m))) : 90 - Math.abs(Math.toDegrees(Math.atan(line.m)));
