@@ -274,7 +274,7 @@ public class PictographDetectorV2 extends LinearOpMode implements CameraBridgeVi
         Point side1StartRotated;
         Point side2StartRotated;
         double angle = Math.atan(bottom.m);
-        if((top.start.y+top.end.y)/2 >= (bottom.end.y+bottom.start.y)/2) { //because we go in a circle to create the lines
+        if((top.start.y+top.end.y)/2 >= (bottom.end.y+bottom.start.y)/2) {
             side1StartRotated = rotate(side1.start,center,Math.PI-angle);
             side2StartRotated = rotate(side2.start,center,Math.PI-angle);
         }
