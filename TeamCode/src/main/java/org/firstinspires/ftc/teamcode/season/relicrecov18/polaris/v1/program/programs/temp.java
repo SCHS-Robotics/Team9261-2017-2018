@@ -122,7 +122,13 @@ public class PictographDetectorV2 extends LinearOpMode implements CameraBridgeVi
 
             Imgproc.drawContours(output, approxList, 0, new Scalar(255, 0, 0), 5);
 
-            Mat corners = getCorners(approxList.get(0), output);
+            MatOfInt intHull = new MatOfInt();
+            Imgproc.convexHull(c,intHull);
+            MatOfPoint hull = convertIndexesToPoints(c,intHull);
+            
+            Moments moments = Imgproc.moments(hull)
+            
+            Mat corners = getCorners(hull, moments, output);
             Mat templateCorners = getTemplateCorners(templateImage);
 
             Size boxSize = getCornersSize(templateCorners);
@@ -186,130 +192,111 @@ public class PictographDetectorV2 extends LinearOpMode implements CameraBridgeVi
         return new Size(width,height);
     }
 
-    public Mat getCorners(MatOfPoint pts, Mat draw) {
-        ArrayList<Point> ptsList = new ArrayList<>(pts.toList());
-        ArrayList<Line> lines = new ArrayList<>();
-        ArrayList<Point> importantPts = new ArrayList<>();
+    public Mat getCorners(MatOfPoint pts, Moments moments, Mat draw) {
+        List<Point> ptsList = new ArrayList<>(pts.toList());
+        List<Line> lines = new ArrayList<>();
+
+        Line bottom;
+        Line top;
+        Line left;
+        Line right;
+
         for(int i = 0; i < ptsList.size(); i++) {
+
             Point init = ptsList.get(i);
             Point lookAhead = ptsList.get((i+1)%ptsList.size());
 
-            Line temp = new Line(init,lookAhead);
+            Line temp = new Line(init, lookAhead);
+
             lines.add(temp);
         }
-        Collections.sort(lines, new Comparator<Line>() {
-            @Override
-            public int compare(Line lhs, Line rhs) {
-                if(lhs.length > rhs.length) {
-                    return -1;
-                }
-                else if(lhs.length < rhs.length) {
-                    return 1;
-                }
-                else {
-                    return 0;
-                }
-            }
-        });
 
-        List<Line> importantLines = new ArrayList<>();
+        List<List<Line>> opposites = new ArrayList<>();
+        List<Line> used = new ArrayList<>();
+        for(Line line: lines) {
+            
+            for(Line nextLine: lines) {
 
-        for(Line l : lines.subList(0,4)) {
-            if(!importantPts.contains(l.start)) {
-                importantPts.add(l.start);
-                Imgproc.circle(draw,l.start,7,new Scalar(0,0,0),-1);
-            }
-            if(!importantPts.contains(l.end)) {
-                importantPts.add(l.end);
-                Imgproc.circle(draw,l.end,7,new Scalar(0,0,0),-1);
+                double angle = Math.toDegrees(Math.atan((line.m - nextLine.m) / (1 + line.m * nextLine.m)));
+                if(Double.isNaN(angle)) {
+                    angle = Double.isInfinite(line.m) ? 90 - Math.abs(Math.toDegrees(Math.atan(nextLine.m))) : 90 - Math.abs(Math.toDegrees(Math.atan(line.m)));
+                }
+                if(Math.abs(angle) > 0 && Math.abs(angle) < 15 && !(used.contains(line) || used.contains(nextLine))) {
+                    List<Line> pair = new ArrayList<>();
+                    pair.add(line);
+                    pair.add(nextLine);
+                    opposites.add(pair);
+                    used.addAll(pair);
+                    break;
+                }
             }
         }
-        importantLines = lines.subList(0,4);
 
-        Collections.sort(importantLines, new Comparator<Line>() {
-            @Override
-            public int compare(Line lhs, Line rhs) {
-                return (int) Math.round(Math.abs(lhs.m) - Math.abs(rhs.m));
+        List<Integer> indices = new ArrayList<>();
+        List<Integer> topBottomLoc = new ArrayList<>();
+        boolean bottomFound = false;
+        for(Line line1 : opposites.get(0)) {
+            if(bottomFound) {
+                break;
             }
-        });
-
-        List<Line> topBottom = new ArrayList<>();
-        List<Line> leftRight = new ArrayList<>();
-
-        telemetry.addData("1",importantLines.get(0).m);
-        telemetry.addData("2",importantLines.get(1).m);
-        telemetry.addData("3",importantLines.get(2).m);
-        telemetry.addData("4",importantLines.get(3).m);
-
-        topBottom.add(importantLines.get(0));
-        topBottom.add(importantLines.get(1));
-
-        leftRight.add(importantLines.get(2));
-        leftRight.add(importantLines.get(3));
-
-        Collections.sort(leftRight, new Comparator<Line>() {
-            @Override
-            public int compare(Line lhs, Line rhs) {
-                return (int) Math.round(rhs.start.x-lhs.start.x);
-            }
-        });
-
-        Line left = leftRight.get(1);
-        Line right = leftRight.get(0);
-
-        Collections.sort(topBottom, new Comparator<Line>() {
-            @Override
-            public int compare(Line lhs, Line rhs) {
-                return (int) Math.round(rhs.start.y-lhs.start.y);
-            }
-        });
-
-        Line top = topBottom.get(1);
-        Line bottom = topBottom.get(0);
-
-        bottom.drawLabeled(draw, "bottom");
-        top.drawLabeled(draw,"top");
-        left.drawLabeled(draw, "left");
-        right.drawLabeled(draw, "right");
-
-        /*
-        Collections.sort(importantPts, new Comparator<Point>() {
-            @Override
-            public int compare(Point o1, Point o2) {
-                if(o1.y > o2.y){
-                    return 1;
-                }
-                else if(o1.y < o2.y) {
-                    return -1;
-                }
-                else {
-                    return 0;
+            for(Line line2 : opposites.get(1)) {
+                Point intersection = line1.getIntersectWith(line2);
+                if(ptsList.contains(intersection)) {
+                    System.out.println(Integer.toString(lines.indexOf(line1)) + " and " + Integer.toString(lines.indexOf(line2)));
+                    if(indices.contains(lines.indexOf(line1))) {
+                        int pairIndex = opposites.get(0).contains(line1) ? 0 : 1;
+                        int index = opposites.get(pairIndex).indexOf(line1);
+                        topBottomLoc.add(pairIndex);
+                        topBottomLoc.add(index);
+                        bottomFound = true;
+                        break;
+                    }
+                    else if(indices.contains(lines.indexOf(line2))) {
+                        int pairIndex = opposites.get(0).contains(line2) ? 0 : 1;
+                        int index = opposites.get(pairIndex).indexOf(line2);
+                        topBottomLoc.add(pairIndex);
+                        topBottomLoc.add(index);
+                        bottomFound = true;
+                        break;
+                    }
+                    else {
+                        indices.add(lines.indexOf(line1));
+                        indices.add(lines.indexOf(line2));
+                    }
                 }
             }
-        });
-        Line top = new Line(importantPts.get(0),importantPts.get(1));
-        Line bottom = new Line(importantPts.get(importantPts.size()-2),importantPts.get(importantPts.size()-1));
-        Collections.sort(importantPts, new Comparator<Point>() {
-            @Override
-            public int compare(Point o1, Point o2) {
-                if(o1.x > o2.x){
-                    return 1;
-                }
-                else if(o1.x < o2.x) {
-                    return -1;
-                }
-                else {
-                    return 0;
-                }
-            }
-        });
-        Line left = new Line(importantPts.get(0),importantPts.get(1));
-        Line right = new Line(importantPts.get(importantPts.size()-2),importantPts.get(importantPts.size()-1));
-*/
+        }
+        bottom = opposites.get(topBottomLoc.get(0)).get(topBottomLoc.get(1));
+        top = opposites.get(topBottomLoc.get(0)).get((1-topBottomLoc.get(1))%2);
+
+        Line side1 = opposites.get((1-topBottomLoc.get(0))%2).get(0);
+        Line side2 = opposites.get((1-topBottomLoc.get(0))%2).get(1);
+
+        Point center = new Point(moments.m10/moments.m00,moments.m01/moments.m00);
+        Point side1StartRotated;
+        Point side2StartRotated;
+        double angle = Math.atan(bottom.m);
+        if((top.start.y+top.end.y)/2 >= (bottom.end.y+bottom.start.y)/2) { //because we go in a circle to create the lines
+            side1StartRotated = rotate(side1.start,center,Math.PI-angle);
+            side2StartRotated = rotate(side2.start,center,Math.PI-angle);
+        }
+        else {
+            side1StartRotated = rotate(side1.start,center,-angle);
+            side2StartRotated = rotate(side2.start,center,-angle);
+        }
+
+        left = side1StartRotated.x < side2StartRotated.x ? side1 : side2;
+        right = side1StartRotated.x < side2StartRotated.x ? side2 : side1;
+
         Point topLeft = top.getIntersectWith(left);
         Point topRight = top.getIntersectWith(right);
         Point bottomLeft = bottom.getIntersectWith(left);
         Point bottomRight = bottom.getIntersectWith(right);
+
+        Imgproc.circle(draw,bottomLeft,4,new Scalar(0,0,255),-1);
+        Imgproc.circle(draw,bottomRight,4,new Scalar(0,0,255),-1);
+        Imgproc.circle(draw,topLeft,4,new Scalar(0,0,255),-1);
+        Imgproc.circle(draw,topRight,4,new Scalar(0,0,255),-1);
 
         Mat output = new Mat(4,1, CvType.CV_32FC2);
 
@@ -317,24 +304,17 @@ public class PictographDetectorV2 extends LinearOpMode implements CameraBridgeVi
         output.put(1,0, new double[] {(float) topRight.x,(float) topRight.y});
         output.put(2,0, new double[] {(float) bottomRight.x,(float) bottomRight.y});
         output.put(3,0, new double[] {(float) bottomLeft.x,(float) bottomLeft.y});
-/*
-        Imgproc.line(draw,topLeft,topRight,new Scalar(0,255,0),5);
-        Imgproc.line(draw,topLeft,bottomLeft,new Scalar(0,255,0),5);
-        Imgproc.line(draw,bottomLeft,bottomRight,new Scalar(0,255,0),5);
-        Imgproc.line(draw,bottomRight,topRight,new Scalar(0,255,0),5);
-*/
+
+        Imgproc.line(draw,topLeft,topRight,new Scalar(0,255,0));
+        Imgproc.line(draw,topLeft,bottomLeft,new Scalar(0,255,0));
+        Imgproc.line(draw,bottomLeft,bottomRight,new Scalar(0,255,0));
+        Imgproc.line(draw,bottomRight,topRight,new Scalar(0,255,0));
+
+        //showResult(draw);
+
         return output;
     }
 
-    public Mat hexFilter(Mat input) {
-        Mat thresh = new Mat();
-        Mat hsv = new Mat();
-        Mat rgb = new Mat();
-        Imgproc.cvtColor(input,rgb,Imgproc.COLOR_GRAY2RGB);
-        Imgproc.cvtColor(rgb,hsv,Imgproc.COLOR_RGB2HSV);
-        Core.inRange(hsv,new Scalar(0,0,0),new Scalar(255,255,40),thresh);
-        return thresh;
-    }
 
     public int hexCount(Mat input, Mat draw) {
         MatOfRect boxes = new MatOfRect();
@@ -363,6 +343,30 @@ public class PictographDetectorV2 extends LinearOpMode implements CameraBridgeVi
         return hexes;
     }
 
+    public MatOfPoint convertIndexesToPoints(MatOfPoint contour, MatOfInt indexes) {
+        int[] arrIndex = indexes.toArray();
+        Point[] arrContour = contour.toArray();
+        Point[] arrPoints = new Point[arrIndex.length]; //Makes an array of points that contains the same number of elements as the MatOfInt
+
+        for (int i=0;i<arrIndex.length;i++) {
+            arrPoints[i] = arrContour[arrIndex[i]]; //Add whatever point is at the MatOfInt's value to the array of points
+        }
+
+        MatOfPoint outputHull = new MatOfPoint();
+        outputHull.fromArray(arrPoints);
+        return outputHull;
+    }
+    
+    public Point rotate(Point p, Point origin, double angle) {
+        double xdiff = p.x - origin.x;
+        double ydiff = p.y - origin.y;
+        double cos = Math.cos(angle);
+        double sin = Math.sin(angle);
+        double x = origin.x + cos*xdiff - sin*ydiff;
+        double y = origin.y + sin*xdiff + cos*ydiff;
+        return new Point(x,y);
+    }
+    
     //Starts Opencv by sending a start message to FtcRobotControllerActivity
     public void startOpenCV(CameraBridgeViewBase.CvCameraViewListener2 cameraViewListener) {
         FtcRobotControllerActivity.turnOnCameraView.obtainMessage(1, cameraViewListener).sendToTarget();
